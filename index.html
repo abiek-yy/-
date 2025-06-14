@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <title>Notionページ作成</title>
+    <!-- Tailwind CSSをCDNで読み込み -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- InterフォントをGoogle Fontsから読み込み -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1.5rem; /* モバイル対応のためのパディング */
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            max-width: 500px;
+            width: 100%; /* フル幅を基本に */
+        }
+        .form-group {
+            margin-bottom: 1.25rem; /* 各フォームグループ間のスペース */
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea { /* textareaもスタイリングに追加 */
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: #4a5568;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+        }
+        .btn-submit {
+            background-color: #4299e1;
+            color: white;
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+            width: 100%;
+            display: block;
+            text-align: center;
+        }
+        .btn-submit:hover {
+            background-color: #3182ce;
+        }
+        .message-box {
+            background-color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #4a5568;
+            word-wrap: break-word; /* メッセージが長い場合の折り返し */
+        }
+        .message-box.success {
+            background-color: #d1fae5; /* Tailwind green-100 */
+            color: #065f46; /* Tailwind green-900 */
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* Tailwind red-100 */
+            color: #991b1b; /* Tailwind red-900 */
+        }
+        /* レスポンシブ対応 */
+        @media (max-width: 640px) {
+            .container {
+                padding: 1.5rem;
+            }
+            .text-2xl {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Notionページ新規作成</h2>
+        <form id="notionForm">
+            <!-- 既存のタイトルと日付フィールド -->
+            <div class="form-group">
+                <label for="pageTitle">タイトル:</label>
+                <input type="text" id="pageTitle" name="pageTitle" placeholder="ページのタイトルを入力" required>
+            </div>
+            <div class="form-group">
+                <label for="pageDate">開催日:</label>
+                <input type="date" id="pageDate" name="pageDate" required>
+            </div>
+
+            <!-- 新しく追加されたプロパティの入力フィールド -->
+            <div class="form-group">
+                <label for="placeName">場名・店名:</label>
+                <input type="text" id="placeName" name="placeName" placeholder="場名または店名を入力">
+            </div>
+            <div class="form-group">
+                <label for="raceName">レース名:</label>
+                <input type="text" id="raceName" name="raceName" placeholder="レース名を入力">
+            </div>
+            <div class="form-group">
+                <label for="class">クラス:</label>
+                <input type="text" id="class" name="class" placeholder="クラスを入力">
+            </div>
+            <div class="form-group">
+                <label for="distance">距離 (m):</label>
+                <input type="number" id="distance" name="distance" placeholder="距離を数値で入力">
+            </div>
+            <div class="form-group">
+                <label for="conditions">条件:</label>
+                <input type="text" id="conditions" name="conditions" placeholder="条件を入力">
+            </div>
+            <div class="form-group">
+                <label for="trackCondition">馬場:</label>
+                <input type="text" id="trackCondition" name="trackCondition" placeholder="馬場状態を入力">
+            </div>
+            <div class="form-group">
+                <label for="betType">券種:</label>
+                <input type="text" id="betType" name="betType" placeholder="券種を入力">
+            </div>
+            <div class="form-group">
+                <label for="expense">支出:</label>
+                <input type="number" id="expense" name="expense" placeholder="支出を数値で入力">
+            </div>
+            <div class="form-group">
+                <label for="income">収入:</label>
+                <input type="number" id="income" name="income" placeholder="収入を数値で入力">
+            </div>
+            <div class="form-group">
+                <label for="machineType">機種:</label>
+                <input type="text" id="machineType" name="machineType" placeholder="機種を入力">
+            </div>
+            <div class="form-group">
+                <label for="type">タイプ:</label>
+                <input type="text" id="type" name="type" placeholder="タイプを入力">
+            </div>
+            <div class="form-group">
+                <label for="distanceGenre">距離ジャンル:</label>
+                <input type="text" id="distanceGenre" name="distanceGenre" placeholder="距離ジャンルを入力">
+            </div>
+            <div class="form-group">
+                <label for="bettingSelection">買い目:</label>
+                <input type="text" id="bettingSelection" name="bettingSelection" placeholder="買い目を入力">
+            </div>
+            <div class="form-group">
+                <label for="media">Media (URLまたはテキスト):</label>
+                <input type="text" id="media" name="media" placeholder="メディアのURLまたは説明を入力">
+            </div>
+            <div class="form-group">
+                <label for="memo">メモ:</label>
+                <textarea id="memo" name="memo" rows="4" placeholder="メモを入力"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">ページを作成</button>
+        </form>
+        <div id="message" class="message-box hidden"></div>
+    </div>
+
+    <script>
+        document.getElementById('notionForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // フォームのデフォルト送信を防ぐ
+
+            // 既存のフィールド値の取得
+            const pageTitle = document.getElementById('pageTitle').value;
+            const pageDate = document.getElementById('pageDate').value;
+
+            // 新しく追加されたフィールド値の取得
+            const placeName = document.getElementById('placeName').value;
+            const raceName = document.getElementById('raceName').value;
+            const className = document.getElementById('class').value; // 'class'は予約語のため'className'に
+            const distance = document.getElementById('distance').value;
+            const conditions = document.getElementById('conditions').value;
+            const trackCondition = document.getElementById('trackCondition').value;
+            const betType = document.getElementById('betType').value;
+            const expense = document.getElementById('expense').value;
+            const income = document.getElementById('income').value;
+            const machineType = document.getElementById('machineType').value;
+            const type = document.getElementById('type').value;
+            const distanceGenre = document.getElementById('distanceGenre').value;
+            const bettingSelection = document.getElementById('bettingSelection').value;
+            const media = document.getElementById('media').value;
+            const memo = document.getElementById('memo').value;
+
+            const messageBox = document.getElementById('message');
+
+            messageBox.textContent = '作成中...';
+            messageBox.className = 'message-box block'; // メッセージボックスを表示状態にする
+
+            // Google Apps ScriptをWebアプリとしてデプロイしたURLをここに設定します。
+            const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbwpdma0B3TlkKYQaScE56NhY2I5VOFZt9Y_iTIHjhAhZZ2yzsqJ4kP4keXq2gjG-UAP/exec'; 
+            
+            try {
+                const response = await fetch(gasWebAppUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title: pageTitle,
+                        date: pageDate,
+                        // 新しいプロパティをbodyに追加
+                        placeName: placeName,
+                        raceName: raceName,
+                        class: className, // ここも'class'を'className'として送信
+                        distance: distance,
+                        conditions: conditions,
+                        trackCondition: trackCondition,
+                        betType: betType,
+                        expense: expense,
+                        income: income,
+                        machineType: machineType,
+                        type: type,
+                        distanceGenre: distanceGenre,
+                        bettingSelection: bettingSelection,
+                        media: media,
+                        memo: memo
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageBox.textContent = 'ページが正常に作成されました！';
+                    messageBox.className = 'message-box block success';
+                    document.getElementById('notionForm').reset(); // フォームをリセット
+                } else {
+                    messageBox.textContent = `ページの作成に失敗しました: ${result.message || '不明なエラー'}`;
+                    messageBox.className = 'message-box block error';
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                messageBox.textContent = `通信エラーが発生しました: ${error.message || '不明な通信エラー'}`;
+                messageBox.className = 'message-box block error';
+            }
+        });
+    </script>
+</body>
+</html>
