@@ -232,19 +232,21 @@
                 box-sizing: border-box;
                 display: flex; /* 各DBフィールド内のラベルと入力は横並びを維持 */
                 align-items: center;
+                min-width: unset; /* 親から継承される可能性のあるmin-widthをリセット */
             }
             .flex-db-fields > div label { /* Labels inside these sub-divs */
-                flex: none; 
-                width: auto; 
+                flex: none; /* フレキシブルなスペースを取らない */
+                width: auto; /* 自然なサイズに調整 */
                 text-align: right; 
                 margin-bottom: 0; 
                 margin-right: 0.25rem; 
                 font-size: 0.75rem;
             }
             .flex-db-fields > div input { /* Inputs inside these sub-divs */
-                flex: 1; 
+                flex: 1; /* 残りのスペースを埋める */
                 width: auto; 
                 box-sizing: border-box;
+                min-width: unset; /* 親から継承される可能性のあるmin-widthをリセット */
             }
 
             /* 横並びのグループを縦に並べる */
@@ -265,6 +267,15 @@
                  flex: none;
                  min-width: unset;
             }
+        }
+
+        /* 収支の表示枠を無くす */
+        #balance-input[readonly] {
+            border: none !important; /* 枠線をなくす */
+            box-shadow: none !important; /* シャドウをなくす */
+            background-color: transparent !important; /* 背景を透明にする */
+            padding-left: 0 !important; /* 左パディングをなくすことで枠と重なるのを防ぐ */
+            padding-right: 0 !important;
         }
     </style>
 </head>
