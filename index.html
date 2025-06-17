@@ -173,6 +173,25 @@
             background-color: #2563eb;
         }
 
+        /* 横並びのグループのスタイル */
+        .flex-group-wrapper {
+            display: flex;
+            gap: 1rem; /* グループ間のスペース */
+            margin-bottom: 1rem; /* 通常のform-groupと同じマージン */
+            width: 100%; /* 親要素の幅いっぱいに広げる */
+            flex-wrap: wrap; /* 要素が収まらない場合に折り返す */
+        }
+        .flex-group-wrapper .form-group {
+            margin-bottom: 0; /* ラッパー内のform-groupのマージンをリセット */
+            flex: 1 1 calc(33.33% - 0.66rem); /* デフォルトで3分割を試みる */
+            min-width: 150px; /* 最小幅を設定して小さくなりすぎないように */
+        }
+        /* 2つの要素を持つflex-group-wrapperの調整 */
+        .flex-group-wrapper:has(> .form-group:nth-child(2)):not(:has(> .form-group:nth-child(3))) .form-group {
+            flex: 1 1 calc(50% - 0.5rem); /* 2分割 */
+            min-width: 200px;
+        }
+
         /* レスポンシブデザイン */
         @media (max-width: 600px) {
             .container {
@@ -181,46 +200,63 @@
             .title {
                 font-size: 1.5rem; /* 小さい画面でのタイトルサイズ */
             }
-            .form-group label {
-                flex: 0 0 80px; /* 小さい画面でのラベル幅 */
-                font-size: 0.875rem;
-                padding-top: 0.65rem; /* モバイルでもinputと高さを合わせる */
-            }
+            
+            /* 個々のフォームグループ (ラベルと入力欄) を横並びにする */
             .form-group {
-                flex-direction: column; /* 垂直に並べる */
-                align-items: flex-start; /* 左寄せ */
+                flex-direction: row; /* モバイルでも横並びを維持 */
+                align-items: center; /* 垂直方向中央揃え */
+                margin-bottom: 0.75rem; /* 間隔を調整 */
             }
             .form-group label {
-                margin-bottom: 0.25rem; /* ラベルと入力の間に少しスペース */
+                flex: 0 0 80px; /* ラベルの幅を固定 (少し狭く) */
+                margin-right: 0.5rem; /* ラベルと入力の間のスペース */
+                padding-top: 0; /* リセット */
+                text-align: right; /* ラベルを右寄せにして入力フィールドと揃える */
+                font-size: 0.875rem; /* ラベルのフォントサイズを調整 */
             }
             .form-group input,
             .form-group select {
-                width: 100%; /* 入力フィールドの幅を100%に */
+                flex: 1; /* 入力フィールドが残りのスペースを埋める */
+                width: auto; /* 自動幅調整 */
             }
-            /* 三つのDBフィールドをモバイルで縦に並べる */
+
+            /* 日付DBフィールドを横並びにする */
             .flex-db-fields {
-                flex-direction: column;
+                flex-direction: row; /* DBフィールドも横並びを維持 */
+                flex-wrap: wrap; /* 必要に応じて折り返し */
+                gap: 0.5rem; /* 小さな間隔 */
+                width: 100%; /* 親要素の幅いっぱいに */
+                margin-top: 0.5rem; /* 日付入力欄との間に少しスペース */
             }
             .flex-db-fields > div {
-                min-width: 100%; /* 各要素の幅を100%に */
+                flex: 1 1 calc(33.33% - 0.5rem); /* 各要素を3分割 */
+                min-width: 90px; /* 狭くなりすぎないように最小幅を設定 */
             }
-            /* 横並びのグループをモバイルで縦並びにする */
+            .flex-db-fields label {
+                flex: none; /* 親のラベル設定を上書きしない */
+                width: 100%; /* ラベルが自身のコンテナの幅をフルで使う */
+                text-align: left; /* ラベルを左寄せ */
+                margin-bottom: 0.25rem; /* ラベルの下にスペース */
+                margin-right: 0; /* 右マージンなし */
+                font-size: 0.75rem; /* サブラベルのフォントサイズをさらに小さく */
+            }
+
+            /* 横並びのグループがモバイルでも横並びを維持する */
             .flex-group-wrapper {
-                flex-direction: column;
+                flex-direction: row; /* モバイルでも横並びを維持 */
+                flex-wrap: wrap; /* 複数の要素がある場合は折り返す */
+                gap: 0.75rem; /* 少し狭い間隔 */
+                margin-bottom: 0.75rem; /* 間隔を調整 */
             }
-            .flex-group-wrapper > .form-group {
-                width: 100%; /* 幅を100%に */
+            .flex-group-wrapper .form-group {
+                flex: 1 1 calc(50% - 0.5rem); /* デフォルトで2分割を試みる */
+                min-width: 140px; /* 狭くなりすぎないように最小幅を設定 */
             }
-        }
-        /* 横並びのグループのスタイル */
-        .flex-group-wrapper {
-            display: flex;
-            gap: 1rem; /* グループ間のスペース */
-            margin-bottom: 1rem; /* 通常のform-groupと同じマージン */
-            width: 100%; /* 親要素の幅いっぱいに広げる */
-        }
-        .flex-group-wrapper .form-group {
-            margin-bottom: 0; /* ラッパー内のform-groupのマージンをリセット */
+            /* 3つの要素を持つflex-group-wrapperの調整 */
+            .flex-group-wrapper:has(> .form-group:nth-child(3)):not(:has(> .form-group:nth-child(4))) .form-group {
+                 flex: 1 1 calc(33.33% - 0.66rem); /* 3分割 */
+                 min-width: 90px;
+            }
         }
     </style>
 </head>
