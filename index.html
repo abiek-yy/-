@@ -56,6 +56,7 @@
             min-width: 0; /* flexアイテムの最小幅を設定 */
             background-color: #282828; /* 入力フィールドの背景色をさらに暗く */
             color: #cccccc; /* 入力フィールドのテキスト色を少し暗く */
+            box-sizing: border-box; /* padding/borderがwidthに影響しないように */
         }
         /* inputとselectの両方に適用されるフォーカス時のスタイル */
         .form-group input:focus,
@@ -216,48 +217,71 @@
             }
             .form-group input,
             .form-group select {
-                /* For general inputs/selects on mobile */
                 flex: 1; /* 入力フィールドが残りのスペースを埋める */
-                width: auto; /* 自動幅調整 */
+                width: 100%; /* Ensure width is 100% of its flex container */
+                max-width: 100%; /* Prevent it from exceeding 100% */
+                box-sizing: border-box; /* Crucial for preventing overflow due to padding/border */
+                min-width: 0; /* Allow inputs to shrink as much as possible */
             }
 
-            /* 日付DBフィールドを縦に並べる */
-            .flex-db-fields {
-                flex-direction: column; /* 縦並びに変更 */
-                gap: 0.5rem;
-                width: 100%;
-                margin-top: 0.5rem;
-            }
-            .flex-db-fields > div {
-                width: 100%; /* 横幅いっぱいに */
-                box-sizing: border-box;
-                display: flex; /* 各DBフィールド内のラベルと入力は横並びを維持 */
-                align-items: center;
-                min-width: unset; /* 親から継承される可能性のあるmin-widthをリセット */
-            }
-            .flex-db-fields > div label { /* Labels inside 年月日DB, 年DB, 年月DB */
-                flex-shrink: 0; /* ラベルが縮まないようにする */
-                width: 50px; /* ラベルの幅を狭める */
-                margin-right: 0.15rem; /* 少しだけマージン */
-                font-size: 0.7rem; /* ラベルのフォントサイズを調整 */
-                text-align: right;
-                white-space: nowrap; /* テキストの折り返しを防ぐ */
-                overflow: hidden; /* はみ出したテキストを非表示にする */
-                text-overflow: ellipsis; /* はみ出したテキストに省略記号を付ける */
-            }
-            /* Date input (date-input) specific adjustment */
-            #date-input {
-                flex-grow: 1;
-                flex-shrink: 1;
+            /* For the container holding date-input and flex-db-fields */
+            /* This div is the flex item that sits next to the 'Date' label */
+            #date-form-group > div.flex-1 {
+                width: calc(100% - 80px - 0.5rem); /* Total available width - label width - label margin */
                 flex-basis: auto;
+                flex-grow: 1; /* Allow to grow */
+                flex-shrink: 1; /* Allow to shrink */
+                min-width: 0; /* Allow to shrink to 0 */
+                box-sizing: border-box;
+            }
+
+            /* Date input itself, inside the above div */
+            #date-input {
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
                 min-width: 0;
             }
-            .flex-db-fields > div input { /* Inputs inside 年月日DB, 年DB, 年月DB */
-                flex: 1; /* 入力が残りのスペースを占めるようにする */
-                flex-shrink: 1; /* 必要に応じて縮小できるようにする */
-                flex-basis: auto; /* デフォルトの基準値 */
-                min-width: 0; /* 必要に応じて完全に縮小できるようにする */
+            
+            /* Day/Month/Year DB fields container */
+            .flex-db-fields {
+                flex-direction: row; /* Keep them horizontal as per screenshot */
+                flex-wrap: wrap; /* Allow wrapping */
+                justify-content: space-between;
+                gap: 0.5rem; /* Existing gap */
+                width: 100%;
+                margin-top: 0.5rem;
                 box-sizing: border-box;
+            }
+            /* Individual DB field containers (年月日DB, 年DB, 年月DB) */
+            .flex-db-fields > div {
+                flex: 1 1 calc(33.33% - 0.75rem); /* Calculate flex-basis considering gaps */
+                min-width: 80px; /* Smallest sensible min-width to avoid absurd shrinking */
+                box-sizing: border-box;
+                display: flex; /* Keep label and input horizontal within each DB field */
+                align-items: center;
+            }
+            /* Labels inside DB fields */
+            .flex-db-fields > div label { 
+                flex-shrink: 0;
+                width: 40px; /* Further reduced label width for tighter fit */
+                margin-right: 0.1rem; /* Smaller margin */
+                font-size: 0.65rem; /* Smaller font size */
+                text-align: right;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-top: 0; /* Ensure no extra padding pushing elements */
+            }
+            /* Inputs inside DB fields */
+            .flex-db-fields > div input {
+                flex: 1;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                min-width: 0;
+                font-size: 0.8rem; /* Smaller font size for inputs too */
+                padding: 0.4rem 0.3rem; /* Smaller padding */
             }
 
             /* 横並びのグループを縦に並べる */
@@ -272,23 +296,21 @@
                 min-width: unset; /* min-widthをリセット */
                 box-sizing: border-box;
             }
-            /* 3つの要素を持つflex-group-wrapperの調整は、縦並びになったため不要 */
-            .flex-group-wrapper:has(> .form-group:nth-child(3)):not(:has(> .form-group:nth-child(4))) .form-group {
-                 /* 縦並びになるため、これらのルールは削除または無効化 */
-                 flex: none;
-                 min-width: unset;
-            }
 
-            /* 馬場フィールドのラベル調整（メモ入力枠との統一性を確保） */
-            #horse-name-form-group label {
-                flex: 0 0 80px; /* モバイルでの一般的な.form-groupのラベル幅に合わせる */
-                margin-right: 0.5rem; /* モバイルでの一般的な.form-groupのラベルのマージンに合わせる */
-                font-size: 0.875rem; /* モバイルでの一般的な.form-groupのラベルのフォントサイズに合わせる */
-                text-align: right;
-            }
-            #horse-name-input-container input,
-            #horse-name-input-container select {
-                width: 100%; /* 入力/選択フィールドがコンテナの幅いっぱいに広がるようにする */
+            /* Ensure dynamic input containers also correctly constrain their children */
+            #location-store-input-container,
+            #class-input-container,
+            #condition-input-container,
+            #race-name-input-container,
+            #horse-name-input-container,
+            #device-type-input-container,
+            #type-input-container,
+            #manufacturer-input-container {
+                flex: 1;
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
             }
         }
 
@@ -959,7 +981,7 @@
                 "distance-genre": { visible: false, required: false },
                 "condition": { visible: false, required: false },
                 "horse-name": { visible: false, required: false },
-                "betting-type": { visible: false, required: false },
+                "betting-type": { visible: true, required: false },
                 "expense": { visible: true, required: true },
                 "income": { visible: true, required: true },
                 "balance": { visible: true, required: false },
