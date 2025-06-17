@@ -153,7 +153,7 @@
             font-size: 1.5rem;
             font-weight: bold;
             margin-bottom: 1rem;
-            color: #ef4444; /* Red color for error messages */
+            /* color will be set dynamically based on type of message */
         }
         .modal-content p {
             margin-bottom: 1.5rem;
@@ -578,7 +578,7 @@
     <!-- Custom Alert Modal -->
     <div id="custom-alert-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3>入力エラー</h3>
+            <h3 id="alert-title"></h3> <!-- Changed from static to dynamic -->
             <p id="alert-message"></p>
             <button id="alert-close-button" class="modal-close-button">閉じる</button>
         </div>
@@ -1066,12 +1066,15 @@
 
         // Custom Alert Modal Elements
         const customAlertModal = document.getElementById('custom-alert-modal');
+        const alertTitle = document.getElementById('alert-title'); // New: Element for alert title
         const alertMessage = document.getElementById('alert-message');
         const alertCloseButton = document.getElementById('alert-close-button');
         const loadingModal = document.getElementById('loading-modal'); // Loading modal element
 
         // Function to show custom alert modal
-        function showAlert(message) {
+        function showAlert(title, message, isError = true) { // Added title and isError parameters
+            alertTitle.textContent = title;
+            alertTitle.style.color = isError ? '#ef4444' : '#22c55e'; // Red for error, Green for success
             alertMessage.textContent = message;
             customAlertModal.classList.add('show');
         }
@@ -1700,7 +1703,7 @@
             const raceNumber = raceNumberSelect ? raceNumberSelect.value : '';
 
             if (!dateValue || !locationName || !raceNumber) {
-                showAlert("日付、場名・店名、レース番号は検索のために必須です。");
+                showAlert("エラー", "日付、場名・店名、レース番号は検索のために必須です。", true); // isError true
                 return;
             }
 
@@ -1782,18 +1785,6 @@
                     }
 
                     // Perform validation check
-                    // ここで race-number-select の値が実際に空でないかを確認するログを追加します
-                    if (fieldName === 'race-number') {
-                        const raceNumberSelectElement = document.getElementById('race-number-select');
-                        if (raceNumberSelectElement) {
-                            console.log(`Debug: race-number-select value is "${raceNumberSelectElement.value}"`);
-                            console.log(`Debug: race-number-select selectedIndex is ${raceNumberSelectElement.selectedIndex}`);
-                            if (raceNumberSelectElement.selectedIndex !== -1) {
-                                console.log(`Debug: race-number-select option text is "${raceNumberSelectElement.options[raceNumberSelectElement.selectedIndex].text}"`);
-                            }
-                        }
-                    }
-
                     if (!fieldValue) {
                         // Get the label text for the missing field
                         const labelElement = formGroupElement.querySelector('label');
@@ -1810,7 +1801,7 @@
 
             if (missingFields.length > 0) {
                 const message = `以下の必須項目が未入力です。\n\n- ${missingFields.join('\n- ')}`;
-                showAlert(message);
+                showAlert("入力エラー", message, true); // isError true
             } else {
                 // すべての必須項目が入力されたらNotionに送信
                 showLoading(); // 送信開始時にローディング表示
@@ -1852,17 +1843,17 @@
                     const result = await response.json();
 
                     if (result.success) {
-                        showAlert("Notionにデータを送信しました。\n\n" + result.message);
+                        showAlert("送信完了", "Notionにデータを送信しました。\n\n" + result.message, false); // isError false
                         expenseForm.reset(); // フォームをリセット
                         setTodayDate(); // 日付を今日に戻す
                         updateFieldVisibility(); // フィールドの表示をリセット
                         updateBalance(); // 収支をリセット
                     } else {
-                        showAlert("データの送信に失敗しました:\n\n" + result.message);
+                        showAlert("送信失敗", "データの送信に失敗しました:\n\n" + result.message, true); // isError true
                     }
                 } catch (error) {
                     console.error('Error sending data to GAS:', error);
-                    showAlert("データの送信中にエラーが発生しました。\n\nネットワーク接続を確認するか、後でもう一度お試しください。");
+                    showAlert("エラー", "データの送信中にエラーが発生しました。\n\nネットワーク接続を確認するか、後でもう一度お試しください。", true); // isError true
                 } finally {
                     hideLoading(); // 送信完了時にローディングを非表示
                 }
