@@ -248,15 +248,18 @@
                 flex-direction: row; /* Keep them horizontal as per screenshot */
                 flex-wrap: wrap; /* Allow wrapping */
                 justify-content: space-between;
-                gap: 0.5rem; /* Existing gap */
+                /* Adjust gap-x and gap-y for tighter fit */
+                gap-x: 0.2rem; /* Reduced horizontal gap */
+                gap-y: 0.5rem;
                 width: 100%;
                 margin-top: 0.5rem;
                 box-sizing: border-box;
             }
             /* Individual DB field containers (年月日DB, 年DB, 年月DB) */
             .flex-db-fields > div {
-                flex: 1 1 calc(33.33% - 0.75rem); /* Calculate flex-basis considering gaps */
-                min-width: 80px; /* Smallest sensible min-width to avoid absurd shrinking */
+                /* Adjust flex-basis to allocate more space for content */
+                flex: 1 1 calc(33.33% - 0.3rem); /* Adjusted flex-basis to allow more width for input, accounting for smaller gap */
+                min-width: 70px; /* Smallest sensible min-width to avoid absurd shrinking, slightly smaller */
                 box-sizing: border-box;
                 display: flex; /* Keep label and input horizontal within each DB field */
                 align-items: center;
@@ -264,9 +267,9 @@
             /* Labels inside DB fields */
             .flex-db-fields > div label { 
                 flex-shrink: 0;
-                width: 40px; /* Further reduced label width for tighter fit */
-                margin-right: 0.1rem; /* Smaller margin */
-                font-size: 0.65rem; /* Smaller font size */
+                width: 35px; /* Further reduced label width for tighter fit */
+                margin-right: 0.05rem; /* Smaller margin */
+                font-size: 0.6rem; /* Smaller font size */
                 text-align: right;
                 white-space: nowrap;
                 overflow: hidden;
@@ -280,8 +283,8 @@
                 max-width: 100%;
                 box-sizing: border-box;
                 min-width: 0;
-                font-size: 0.8rem; /* Smaller font size for inputs too */
-                padding: 0.4rem 0.3rem; /* Smaller padding */
+                font-size: 0.75rem; /* Slightly larger font size for readability */
+                padding: 0.3rem 0.2rem; /* Smaller padding */
             }
 
             /* 横並びのグループを縦に並べる */
