@@ -245,7 +245,7 @@
                 text-overflow: ellipsis; /* はみ出したテキストに省略記号を付ける */
             }
             .flex-db-fields > div input { /* Inputs inside 年月日DB, 年DB, 年月DB */
-                flex: 0.9; /* 入力が残りのスペースの90%を占めるようにする */
+                flex: 1; /* 入力が残りのスペースを占めるようにする */
                 flex-shrink: 1; /* 必要に応じて縮小できるようにする */
                 flex-basis: auto; /* デフォルトの基準値 */
                 min-width: 0; /* 必要に応じて完全に縮小できるようにする */
@@ -349,7 +349,7 @@
             <div class="flex-group-wrapper">
                 <div class="form-group flex-1" id="location-store-form-group">
                     <label for="location-store-input-label">場名・店名<span id="location-store-required" class="required-mark hidden">*</span></label>
-                    <div id="location-store-input-container" class="flex-1">
+                    <div id="location-store-input-container" class="flex-1 w-full">
                         <input type="text" id="location-store-input" placeholder="場名・店名を入力" class="rounded-lg w-full">
                     </div>
                 </div>
@@ -391,14 +391,14 @@
 
             <div class="form-group" id="race-name-form-group">
                 <label for="race-name-input-label">レース名</label>
-                <div id="race-name-input-container" class="flex-1">
+                <div id="race-name-input-container" class="flex-1 w-full">
                     <input type="text" id="race-name-input" placeholder="レース名を入力" class="rounded-lg w-full">
                 </div>
             </div>
 
             <div class="form-group" id="class-form-group">
                 <label for="class-input-label">クラス<span id="class-required" class="required-mark hidden">*</span></label>
-                <div id="class-input-container" class="flex-1">
+                <div id="class-input-container" class="flex-1 w-full">
                     <input type="text" id="class-input" placeholder="クラスを入力" class="rounded-lg w-full">
                 </div>
             </div>
@@ -407,7 +407,7 @@
             <div class="flex-group-wrapper">
                 <div class="form-group flex-1" id="horse-name-form-group">
                     <label for="horse-name-input-label">馬場<span id="horse-name-required" class="required-mark hidden">*</span></label>
-                    <div id="horse-name-input-container" class="flex-1">
+                    <div id="horse-name-input-container" class="flex-1 w-full">
                         <input type="text" id="horse-name-input" placeholder="馬場を入力" class="rounded-lg w-full">
                     </div>
                 </div>
@@ -458,7 +458,7 @@
             <!-- 条件は単独の行に配置 -->
             <div class="form-group" id="condition-form-group">
                 <label for="condition-input">条件</label>
-                <div id="condition-input-container" class="flex-1">
+                <div id="condition-input-container" class="flex-1 w-full">
                     <input type="text" id="condition-input" placeholder="条件を入力" class="rounded-lg w-full">
                 </div>
             </div>
@@ -505,21 +505,21 @@
             <div class="flex-group-wrapper">
                 <div class="form-group flex-1" id="device-type-form-group">
                     <label for="device-type-label">機種<span id="device-type-required" class="required-mark hidden">*</span></label>
-                    <div id="device-type-input-container" class="flex-1">
+                    <div id="device-type-input-container" class="flex-1 w-full">
                         <input type="text" id="device-type-input" placeholder="機種を入力" class="rounded-lg w-full">
                     </div>
                 </div>
 
                 <div class="form-group flex-1" id="type-form-group">
                     <label for="type-label">タイプ<span id="type-required" class="required-mark hidden">*</span></label>
-                    <div id="type-input-container" class="flex-1">
+                    <div id="type-input-container" class="flex-1 w-full">
                         <input type="text" id="type-input" placeholder="タイプを入力" class="rounded-lg w-full">
                     </div>
                 </div>
 
                 <div class="form-group flex-1" id="manufacturer-form-group">
                     <label for="manufacturer-label">メーカー<span id="manufacturer-required" class="required-mark hidden">*</span></label>
-                    <div id="manufacturer-input-container" class="flex-1">
+                    <div id="manufacturer-input-container" class="flex-1 w-full">
                         <input type="text" id="manufacturer-input" placeholder="メーカーを入力" class="rounded-lg w-full">
                     </div>
                 </div>
@@ -591,7 +591,7 @@
                 "SG", "GⅠ", "GⅡ", "一般"
             ],
             "パチンコ": [],
-            "स्ロット": [],
+            "スロット": [],
             "ポーカー": [],
             "麻雀": [],
             "その他": []
