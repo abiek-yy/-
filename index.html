@@ -216,6 +216,7 @@
             }
             .form-group input,
             .form-group select {
+                /* For general inputs/selects on mobile */
                 flex: 1; /* 入力フィールドが残りのスペースを埋める */
                 width: auto; /* 自動幅調整 */
             }
@@ -243,6 +244,13 @@
                 white-space: nowrap; /* テキストの折り返しを防ぐ */
                 overflow: hidden; /* はみ出したテキストを非表示にする */
                 text-overflow: ellipsis; /* はみ出したテキストに省略記号を付ける */
+            }
+            /* Date input (date-input) specific adjustment */
+            #date-input {
+                flex-grow: 1;
+                flex-shrink: 1;
+                flex-basis: auto;
+                min-width: 0;
             }
             .flex-db-fields > div input { /* Inputs inside 年月日DB, 年DB, 年月DB */
                 flex: 1; /* 入力が残りのスペースを占めるようにする */
@@ -329,17 +337,17 @@
                         <!-- 年月日DBフィールド -->
                         <div class="flex-1 min-w-[calc(33%-0.5rem)] flex items-center" id="date-db-form-group">
                             <label for="date-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年月日DB</label>
-                            <input type="text" id="date-db-input" placeholder="2024年" class="rounded-lg flex-1" readonly>
+                            <input type="text" id="date-db-input" placeholder="2024年" class="rounded-lg flex-1" readonly tabindex="-1">
                         </div>
                         <!-- 年DBフィールド -->
                         <div class="flex-1 min-w-[calc(33%-0.5rem)] flex items-center" id="year-db-form-group">
                             <label for="year-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年DB</label>
-                            <input type="text" id="year-db-input" placeholder="6月" class="rounded-lg flex-1" readonly>
+                            <input type="text" id="year-db-input" placeholder="6月" class="rounded-lg flex-1" readonly tabindex="-1">
                         </div>
                         <!-- 年月DBフィールド -->
                         <div class="flex-1 min-w-[calc(33%-0.5rem)] flex items-center" id="month-date-db-form-group">
                             <label for="month-date-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年月DB</label>
-                            <input type="text" id="month-date-db-input" placeholder="2024年6月" class="rounded-lg flex-1" readonly>
+                            <input type="text" id="month-date-db-input" placeholder="2024年6月" class="rounded-lg flex-1" readonly tabindex="-1">
                         </div>
                     </div>
                 </div>
@@ -451,7 +459,7 @@
                 </div>
                 <div class="form-group flex-1" id="distance-genre-form-group">
                     <label for="distance-genre-input">距離ジャンル</label>
-                    <input type="text" id="distance-genre-input" placeholder="自動反映" class="rounded-lg" readonly>
+                    <input type="text" id="distance-genre-input" placeholder="自動反映" class="rounded-lg" readonly tabindex="-1">
                 </div>
             </div>
 
@@ -497,7 +505,7 @@
 
                 <div class="form-group flex-1" id="balance-form-group">
                     <label for="balance-input">収支</label>
-                    <input type="text" id="balance-input" placeholder="自動計算" class="rounded-lg" readonly>
+                    <input type="text" id="balance-input" placeholder="自動計算" class="rounded-lg" readonly tabindex="-1">
                 </div>
             </div>
 
