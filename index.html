@@ -333,9 +333,9 @@
                 <input type="text" id="title-input" placeholder="タイトルを入力" class="rounded-lg">
             </div>
 
-            <div class="form-group">
-                <label for="category-select">カテゴリ<span id="category-required" class="required-mark hidden">*</span></label>
-                <select id="category-select" class="rounded-lg">
+            <div class="form-group" id="category-form-group">
+                <label for="category-select">カテゴリ<span id="category-required" class="required-mark">*</span></label>
+                <select id="category-select" class="rounded-lg" required>
                     <option value="">選択してください</option>
                     <option value="競馬">競馬</option>
                     <option value="地方競馬">地方競馬</option>
@@ -523,7 +523,7 @@
             <div class="flex-group-wrapper">
                 <div class="form-group flex-1" id="expense-form-group">
                     <label for="expense-input">支出<span id="expense-required" class="required-mark hidden">*</span></label>
-                    <input type="number" id="expense-input" placeholder="支出額を入力" class="rounded-lg">
+                    <input type="number" id="expense-input" placeholder="支出額を入力" class="rounded-lg" step="100">
                 </div>
 
                 <div class="form-group flex-1" id="income-form-group">
@@ -596,7 +596,7 @@
     <script>
         // *** GAS Web App URLをここに貼り付けてください ***
         // Google Apps Scriptをデプロイした後に得られるURL
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxNxU2HxafIXKT0y3bgBzNSeF-mWEoU8rjSHQu_KbedVpoAwB1e3FDB03I2W0pf1eHBsg/exec"; 
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxCL1CEojedVkUoGXYf6M0nL2kAT77mvUbmLu11qFWFhNDWfNguPCYXcjC4iaSehOCGuw/exec"; 
 
         // カテゴリーに応じた場名・店名の候補データ
         const locationData = {
@@ -757,38 +757,13 @@
         const manufacturerOptions = ["北電子", "SANKYO", "Sammy", "大都技研", "山佐"];
 
         // 各フォームグループのIDをマップ
-        const formGroups = {
-            "title": document.getElementById('title-form-group'),
-            "category": document.getElementById('category-select').closest('.form-group'), // Add category form group
-            "date": document.getElementById('date-form-group'),
-            "date-db": document.getElementById('date-db-form-group'), 
-            "year-db": document.getElementById('year-db-form-group'), 
-            "month-date-db": document.getElementById('month-date-db-form-group'), 
-            "location-store": document.getElementById('location-store-form-group'),
-            "event-date": document.getElementById('event-date-form-group'),
-            "race-number": document.getElementById('race-number-form-group'),
-            "race-name": document.getElementById('race-name-form-group'),
-            "class": document.getElementById('class-form-group'),
-            "distance": document.getElementById('distance-form-group'),
-            "distance-genre": document.getElementById('distance-genre-form-group'),
-            "condition": document.getElementById('condition-form-group'),
-            "horse-name": document.getElementById('horse-name-form-group'),
-            "betting-type": document.getElementById('betting-type-form-group'),
-            "expense": document.getElementById('expense-form-group'),
-            "income": document.getElementById('income-form-group'),
-            "balance": document.getElementById('balance-form-group'), // 新しい収支フィールド
-            "device-type": document.getElementById('device-type-form-group'),
-            "type": document.getElementById('type-form-group'),
-            "manufacturer": document.getElementById('manufacturer-form-group'),
-            "media": document.getElementById('media-form-group'),
-            "memo": document.getElementById('memo-form-group')
-        };
+        let formGroups = {}; 
 
         // カテゴリーごとのフィールド表示/非表示、および必須設定 (★マークを反映)
         const visibilityMatrix = {
             "競馬": {
                 "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // Added category
+                "category": { visible: true, required: true }, // カテゴリーは常に必須なので、ここに設定は残すが、別途強制する
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -814,7 +789,7 @@
             },
             "地方競馬": {
                 "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // Added category
+                "category": { visible: true, required: true },
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -840,7 +815,7 @@
             },
             "競艇": {
                 "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // Added category
+                "category": { visible: true, required: true },
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -866,7 +841,7 @@
             },
             "競輪": {
                 "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // Added category
+                "category": { visible: true, required: true },
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -892,7 +867,7 @@
             },
             "オートレース": {
                 "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // Added category
+                "category": { visible: true, required: true },
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -918,7 +893,7 @@
             },
             "パチンコ": {
                 "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // Added category
+                "category": { visible: true, required: true },
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -944,7 +919,7 @@
             },
             "スロット": {
                 "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // Added category
+                "category": { visible: true, required: true },
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -970,7 +945,7 @@
             },
             "ポーカー": {
                 "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // Added category
+                "category": { visible: true, required: true },
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -996,7 +971,7 @@
             },
             "麻雀": {
                 "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // Added category
+                "category": { visible: true, required: true },
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -1022,7 +997,7 @@
             },
             "その他": { // Default to required if visible, otherwise false
                 "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // Added category
+                "category": { visible: true, required: true },
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -1048,44 +1023,44 @@
             }
         };
 
-        const categorySelect = document.getElementById('category-select');
-        const expenseForm = document.getElementById('expense-form'); // Get the form element for submission
+        let categorySelect;
+        let expenseForm;
         
-        // Input Containers and Elements
-        const locationStoreInputContainer = document.getElementById('location-store-input-container');
-        const classInputContainer = document.getElementById('class-input-container');
-        const raceNameInputContainer = document.getElementById('race-name-input-container');
-        const horseNameInputContainer = document.getElementById('horse-name-input-container');
-        const distanceSelect = document.getElementById('distance-select');
-        const distanceGenreInput = document.getElementById('distance-genre-input');
-        const conditionInputContainer = document.getElementById('condition-input-container');
-        const deviceTypeInputContainer = document.getElementById('device-type-input-container');
-        const typeInputContainer = document.getElementById('type-input-container');
-        const manufacturerInputContainer = document.getElementById('manufacturer-input-container');
+        // Input Containers and Elements - DOMContentLoadedで初期化
+        let locationStoreInputContainer;
+        let classInputContainer;
+        let raceNameInputContainer;
+        let horseNameInputContainer;
+        let distanceSelect;
+        let distanceGenreInput;
+        let conditionInputContainer;
+        let deviceTypeInputContainer;
+        let typeInputContainer;
+        let manufacturerInputContainer;
 
-        const dateInput = document.getElementById('date-input');
-        const dateDbInput = document.getElementById('date-db-input');
-        const yearDbInput = document.getElementById('year-db-input');
-        const monthDateDbInput = document.getElementById('month-date-db-input');
+        let dateInput;
+        let dateDbInput;
+        let yearDbInput;
+        let monthDateDbInput;
 
-        const expenseInput = document.getElementById('expense-input');
-        const incomeInput = document.getElementById('income-input');
-        const balanceInput = document.getElementById('balance-input');
+        let expenseInput;
+        let incomeInput;
+        let balanceInput;
         
         // Add a reference to the web search button
-        const webSearchButton = document.getElementById('web-search-button');
+        let webSearchButton;
 
         // Custom Alert Modal Elements
-        const customAlertModal = document.getElementById('custom-alert-modal');
-        const alertTitle = document.getElementById('alert-title'); // New: Element for alert title
-        const alertMessage = document.getElementById('alert-message');
-        const alertCloseButton = document.getElementById('alert-close-button');
-        const loadingModal = document.getElementById('loading-modal'); // Loading modal element
+        let customAlertModal;
+        let alertTitle;
+        let alertMessage;
+        let alertCloseButton;
+        let loadingModal;
 
         // Function to show custom alert modal
-        function showAlert(title, message, isError = true) { // Added title and isError parameters
+        function showAlert(title, message, isError = true) {
             alertTitle.textContent = title;
-            alertTitle.style.color = isError ? '#ef4444' : '#22c55e'; // Red for error, Green for success
+            alertTitle.style.color = isError ? '#ef4444' : '#22c55e';
             alertMessage.textContent = message;
             customAlertModal.classList.add('show');
         }
@@ -1104,15 +1079,6 @@
         function hideLoading() {
             loadingModal.classList.remove('show');
         }
-
-        // Close button event listener for the alert modal
-        alertCloseButton.addEventListener('click', hideAlert);
-        customAlertModal.addEventListener('click', (event) => {
-            if (event.target === customAlertModal) { // Close when clicking outside the content
-                hideAlert();
-            }
-        });
-
 
         // 場名・店名入力フィールドを更新する関数
         function updateLocationInput() {
@@ -1196,7 +1162,7 @@
         function updateRaceNameInput() {
             const selectedCategory = categorySelect.value;
             const raceNames = raceNameData[selectedCategory];
-            const isRequired = visibilityMatrix[selectedCategory]?.["race-name"]?.required || false; // レース名の必須を反映
+            const isRequired = visibilityMatrix[selectedCategory]?.["race-name"]?.required || false;
 
             raceNameInputContainer.innerHTML = '';
 
@@ -1319,7 +1285,7 @@
         function updateConditionInput() {
             const selectedCategory = categorySelect.value;
             const conditions = conditionData[selectedCategory];
-            const isRequired = visibilityMatrix[selectedCategory]?.["condition"]?.required || false; // 条件の必須を反映
+            const isRequired = visibilityMatrix[selectedCategory]?.["condition"]?.required || false;
 
             conditionInputContainer.innerHTML = '';
 
@@ -1358,12 +1324,12 @@
             if (dateValue) {
                 const date = new Date(dateValue);
                 const year = date.getFullYear();
-                const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
-                const day = date.getDate().toString().padStart(2, '0'); // 日付も取得
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
 
-                dateDbInput.value = `${year}年${month}月${day}日`; //ご紹介年MM月DD日
-                yearDbInput.value = `${year}年`; //ご紹介年
-                monthDateDbInput.value = `${year}年${month}月`; //ご紹介年MM月
+                dateDbInput.value = `${year}年${month}月${day}日`;
+                yearDbInput.value = `${year}年`;
+                monthDateDbInput.value = `${year}年${month}月`;
             } else {
                 dateDbInput.value = '';
                 yearDbInput.value = '';
@@ -1373,7 +1339,7 @@
 
         // タイプ入力フィールドを初期化・更新する関数
         function initializeTypeField(initialValue = '') {
-            typeInputContainer.innerHTML = ''; // Clear previous content
+            typeInputContainer.innerHTML = '';
             const selectedCategory = categorySelect.value;
             const isRequired = visibilityMatrix[selectedCategory]?.["type"]?.required || false;
 
@@ -1406,7 +1372,7 @@
                     inputElement.id = 'type-input';
                     inputElement.placeholder = "タイプを入力";
                     inputElement.className = 'rounded-lg w-full';
-                    if (isRequired) inputElement.setAttribute('required', 'required'); // Ensure required status is carried over
+                    if (isRequired) inputElement.setAttribute('required', 'required');
                     typeInputContainer.innerHTML = '';
                     typeInputContainer.appendChild(inputElement);
                     inputElement.focus();
@@ -1415,7 +1381,6 @@
 
             typeInputContainer.appendChild(selectElement);
 
-            // Set initial value if provided and valid
             if (initialValue) {
                 if (typeOptions.includes(initialValue)) {
                     selectElement.value = initialValue;
@@ -1433,7 +1398,7 @@
 
         // メーカー入力フィールドを初期化・更新する関数
         function initializeManufacturerField(initialValue = '') {
-            manufacturerInputContainer.innerHTML = ''; // Clear previous content
+            manufacturerInputContainer.innerHTML = '';
             const selectedCategory = categorySelect.value;
             const isRequired = visibilityMatrix[selectedCategory]?.["manufacturer"]?.required || false;
 
@@ -1466,7 +1431,7 @@
                     inputElement.id = 'manufacturer-input';
                     inputElement.placeholder = "メーカーを入力";
                     inputElement.className = 'rounded-lg w-full';
-                    if (isRequired) inputElement.setAttribute('required', 'required'); // Ensure required status is carried over
+                    if (isRequired) inputElement.setAttribute('required', 'required');
                     manufacturerInputContainer.innerHTML = '';
                     manufacturerInputContainer.appendChild(inputElement);
                     inputElement.focus();
@@ -1475,7 +1440,6 @@
 
             manufacturerInputContainer.appendChild(selectElement);
 
-            // Set initial value if provided and valid
             if (initialValue) {
                 if (manufacturerOptions.includes(initialValue)) {
                     selectElement.value = initialValue;
@@ -1511,7 +1475,7 @@
             const isPachinkoOrSlot = ["パチンコ", "スロット"].includes(selectedCategory);
             const isRequired = visibilityMatrix[selectedCategory]?.["device-type"]?.required || false;
 
-            deviceTypeInputContainer.innerHTML = ''; // 現在の入力フィールドをクリア
+            deviceTypeInputContainer.innerHTML = '';
 
             if (isPachinkoOrSlot) {
                 const selectElement = document.createElement('select');
@@ -1524,7 +1488,7 @@
                 defaultOption.textContent = "選択してください";
                 selectElement.appendChild(defaultOption);
 
-                allDeviceTypes.forEach(device => { // 全ての機種リストを使用
+                allDeviceTypes.forEach(device => {
                     const option = document.createElement('option');
                     option.value = device;
                     option.textContent = device;
@@ -1543,16 +1507,15 @@
                         inputElement.id = 'device-type-input';
                         inputElement.placeholder = "機種を入力";
                         inputElement.className = 'rounded-lg w-full';
-                        if (isRequired) inputElement.setAttribute('required', 'required'); // Ensure required status is carried over
+                        if (isRequired) inputElement.setAttribute('required', 'required');
                         deviceTypeInputContainer.innerHTML = '';
                         deviceTypeInputContainer.appendChild(inputElement);
                         inputElement.focus();
                     }
-                    autoFillTypeAndManufacturer(); // 機種選択時にタイプとメーカーを自動反映
+                    autoFillTypeAndManufacturer();
                 });
                 deviceTypeInputContainer.appendChild(selectElement);
             } else {
-                // その他のカテゴリはフリーワード入力
                 const inputElement = document.createElement('input');
                 inputElement.type = 'text';
                 inputElement.id = 'device-type-input';
@@ -1560,9 +1523,8 @@
                 inputElement.className = 'rounded-lg w-full';
                 if (isRequired) inputElement.setAttribute('required', 'required');
                 deviceTypeInputContainer.appendChild(inputElement);
-                inputElement.addEventListener('input', autoFillTypeAndManufacturer); // フリーワード入力時も反映
+                inputElement.addEventListener('input', autoFillTypeAndManufacturer);
             }
-            // 機種入力フィールドが生成された直後に自動反映を試みる (初期状態のため)
             autoFillTypeAndManufacturer();
         }
 
@@ -1571,94 +1533,127 @@
             const expense = parseFloat(expenseInput.value) || 0;
             const income = parseFloat(incomeInput.value) || 0;
             const balance = income - expense;
-            balanceInput.value = balance.toLocaleString(); // 数値をローカル形式で表示（例: 1,000）
-            // 収支がマイナスの場合は赤色、プラスの場合は緑色に
+            balanceInput.value = balance.toLocaleString();
             if (balance < 0) {
-                balanceInput.style.color = '#ef4444'; /* Red */
+                balanceInput.style.color = '#ef4444';
             } else if (balance > 0) {
-                balanceInput.style.color = '#22c55e'; /* Green */
+                balanceInput.style.color = '#22c55e';
             } else {
-                balanceInput.style.color = '#cccccc'; /* Default color */
+                balanceInput.style.color = '#cccccc';
             }
         }
 
         // フィールドの表示/非表示を切り替えるメイン関数
         function updateFieldVisibility() {
             const selectedCategory = categorySelect.value;
+            console.log(`Debug: --- Entering updateFieldVisibility ---`);
+            console.log(`Debug: selectedCategory at start of updateFieldVisibility: "${selectedCategory}"`);
             const categoryVisibility = visibilityMatrix[selectedCategory];
+            console.log(`Debug: categoryVisibility for "${selectedCategory}":`, categoryVisibility);
 
             // 全てのフィールドをデフォルトで非表示にする
             for (const key in formGroups) {
                 if (formGroups[key]) {
                     formGroups[key].classList.add('hidden');
-                    // Remove required attribute from all elements initially
                     const inputOrSelect = formGroups[key].querySelector('input, select');
                     if (inputOrSelect) { 
                         inputOrSelect.removeAttribute('required');
                     }
-                    // Remove required mark
                     const requiredMark = formGroups[key].querySelector('.required-mark');
                     if (requiredMark) {
                         requiredMark.classList.add('hidden');
                     }
+                    console.log(`Debug: Field group "${key}" set to hidden by default.`);
+                } else {
+                    console.warn(`Warning: formGroup for key "${key}" is null during initial hiding.`);
                 }
             }
 
-            // 選択されたカテゴリに基づいて表示を切り替える
-            if (categoryVisibility) {
+            // カテゴリフィールドは常に表示し、必須とする
+            const categoryFormGroup = document.getElementById('category-form-group');
+            const categoryRequiredMark = document.getElementById('category-required');
+            const categorySelectElement = document.getElementById('category-select');
+
+            if (categoryFormGroup) {
+                categoryFormGroup.classList.remove('hidden');
+                console.log(`Debug: Category form group set to visible.`);
+            }
+            if (categoryRequiredMark) {
+                categoryRequiredMark.classList.remove('hidden');
+                console.log(`Debug: Category required mark shown.`);
+            }
+            if (categorySelectElement) {
+                categorySelectElement.setAttribute('required', 'required');
+                console.log(`Debug: Category select element set to required.`);
+            }
+
+
+            // 選択されたカテゴリに基づいてその他のフィールドの表示を切り替える
+            if (categoryVisibility && selectedCategory !== "") { // カテゴリが選択されている場合のみ
+                console.log(`Debug: Processing visibility for category: ${selectedCategory}`);
                 for (const fieldName in categoryVisibility) {
+                    // カテゴリ自体は上記で処理済みなのでスキップ
+                    if (fieldName === "category") continue; 
+
                     const fieldSetting = categoryVisibility[fieldName];
                     const formGroupElement = formGroups[fieldName];
 
-                    if (formGroupElement && fieldSetting.visible) {
-                        formGroupElement.classList.remove('hidden');
-                        
-                        // Add required attribute if necessary, handling dynamic elements
-                        if (fieldSetting.required) {
-                            // Special handling for date-db, year-db, month-date-db as they are readonly
-                            if (["date-db", "year-db", "month-date-db", "balance"].includes(fieldName)) {
-                                // Do not set 'required' attribute, just ensure visibility.
-                                // Their 'required' status in matrix implies they are critical DB fields, not user input required.
+                    if (formGroupElement) { // formGroupElementがnullでないことを確認
+                        if (fieldSetting.visible) {
+                            formGroupElement.classList.remove('hidden');
+                            console.log(`Debug: Field group "${fieldName}" set to visible.`);
+                            
+                            if (fieldSetting.required) {
+                                if (["date-db", "year-db", "month-date-db", "balance"].includes(fieldName)) {
+                                    console.log(`Debug: Field "${fieldName}" is visible (readonly).`);
+                                } else {
+                                    let inputElement = null;
+                                    if (fieldName === 'title' || fieldName === 'date' || fieldName === 'expense' || fieldName === 'income' || fieldName === 'media' || fieldName === 'memo' || fieldName === 'betting-type' || fieldName === 'distance' || fieldName === 'event-date' || fieldName === 'race-number') {
+                                        inputElement = document.getElementById(fieldName + ((fieldName === 'betting-type' || fieldName === 'distance' || fieldName === 'event-date' || fieldName === 'race-number') ? '-select' : '-input'));
+                                    } else {
+                                        const container = document.getElementById(fieldName + '-input-container');
+                                        if (container) {
+                                            inputElement = container.querySelector('input, select');
+                                        }
+                                    }
+                                    
+                                    if (inputElement) {
+                                        inputElement.setAttribute('required', 'required');
+                                        console.log(`Debug: Field "${fieldName}" is visible and required.`);
+                                    } else {
+                                        console.warn(`Warning: Could not find input/select element for required field "${fieldName}". Check ID or dynamic generation.`);
+                                    }
+                                }
                             } else {
-                                // For other fields, find the actual input/select and set required
-                                let inputElement = null;
-                                if (fieldName === 'title' || fieldName === 'date' || fieldName === 'expense' || fieldName === 'income' || fieldName === 'media' || fieldName === 'memo' || fieldName === 'category' || fieldName === 'betting-type' || fieldName === 'distance' || fieldName === 'event-date' || fieldName === 'race-number') {
-                                    // Direct input/select fields
-                                    inputElement = document.getElementById(fieldName + ((fieldName === 'category' || fieldName === 'betting-type' || fieldName === 'distance' || fieldName === 'event-date' || fieldName === 'race-number') ? '-select' : '-input'));
-                                } else { // Dynamic containers
-                                    const container = document.getElementById(fieldName + '-input-container');
-                                    if (container) {
-                                        inputElement = container.querySelector('input, select');
-                                    }
-                                }
-                                
-                                if (inputElement) {
-                                    inputElement.setAttribute('required', 'required');
-                                    // For select elements, ensure the default option has an empty value
-                                    if (inputElement.tagName === 'SELECT' && inputElement.options[0]?.value === "") {
-                                        // Ensure the first option is "選択してください" and has an empty value for validation
-                                    }
-                                }
+                                console.log(`Debug: Field "${fieldName}" is visible but not required.`);
                             }
+                            const requiredMark = formGroupElement.querySelector('.required-mark');
+                            if (requiredMark && fieldSetting.required) {
+                                requiredMark.classList.remove('hidden');
+                                console.log(`Debug: Required mark shown for "${fieldName}".`);
+                            }
+                        } else {
+                            console.log(`Debug: Field group "${fieldName}" remains hidden (not visible for category).`);
                         }
-                        // Show required mark
-                        const requiredMark = formGroupElement.querySelector('.required-mark');
-                        if (requiredMark && fieldSetting.required) {
-                            requiredMark.classList.remove('hidden');
-                        }
+                    } else {
+                        console.warn(`Warning: formGroup for key "${fieldName}" is null during visibility update.`);
                     }
                 }
+            } else {
+                console.log(`Debug: No specific category selected, keeping most fields hidden.`);
             }
             
-            // Control Web Search button visibility based on category
             const relevantCategories = ["競馬", "地方競馬", "競艇", "競輪", "オートレース"];
             if (relevantCategories.includes(selectedCategory)) {
-                webSearchButton.style.display = 'flex'; // Use flex to ensure proper icon alignment
+                webSearchButton.style.display = 'flex';
+                console.log(`Debug: Web search button displayed.`);
             } else {
                 webSearchButton.style.display = 'none';
+                console.log(`Debug: Web search button hidden.`);
             }
 
-            // フィールドの動的な更新もトリガー (required属性の適用も内部で行う)
+            // 動的なフィールドの更新は、カテゴリが選択されているかに関わらず実行する必要がある
+            // ただし、選択肢はselectedCategoryに依存する
             updateLocationInput();
             updateClassInput();
             updateRaceNameInput();
@@ -1668,222 +1663,301 @@
             updateDeviceTypeInput();
             initializeTypeField();
             initializeManufacturerField();
-            updateBalance(); // Update balance on visibility change
+            updateBalance();
+            console.log("Debug: Dynamic field updates triggered.");
         }
 
         // Function to set today's date as default for the date input
         function setTodayDate() {
             const today = new Date();
             const year = today.getFullYear();
-            const month = (today.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
             const day = today.getDate().toString().padStart(2, '0');
             dateInput.value = `${year}-${month}-${day}`;
-            updateDateFields(); // Also update the DB date fields
+            updateDateFields();
         }
 
 
         // ページ読み込み時に初期状態を設定
         document.addEventListener('DOMContentLoaded', () => {
-            setTodayDate(); // Set today's date as default
-            categorySelect.value = "競馬"; // カテゴリのデフォルト値を「競馬」に設定
-            updateFieldVisibility(); // 初期表示でフィールドの表示/非表示と必須設定を行う
+            console.log("Debug: DOMContentLoaded event fired.");
+
+            // すべてのDOM要素をここで取得し、グローバル変数に割り当てる
+            categorySelect = document.getElementById('category-select');
+            expenseForm = document.getElementById('expense-form');
+            locationStoreInputContainer = document.getElementById('location-store-input-container');
+            classInputContainer = document.getElementById('class-input-container');
+            raceNameInputContainer = document.getElementById('race-name-input-container');
+            horseNameInputContainer = document.getElementById('horse-name-input-container');
+            distanceSelect = document.getElementById('distance-select');
+            distanceGenreInput = document.getElementById('distance-genre-input');
+            conditionInputContainer = document.getElementById('condition-input-container');
+            deviceTypeInputContainer = document.getElementById('device-type-input-container');
+            typeInputContainer = document.getElementById('type-input-container');
+            manufacturerInputContainer = document.getElementById('manufacturer-input-container');
+            dateInput = document.getElementById('date-input');
+            dateDbInput = document.getElementById('date-db-input');
+            yearDbInput = document.getElementById('year-db-input');
+            monthDateDbInput = document.getElementById('month-date-db-input');
+            expenseInput = document.getElementById('expense-input');
+            incomeInput = document.getElementById('income-input');
+            balanceInput = document.getElementById('balance-input');
+            webSearchButton = document.getElementById('web-search-button');
+            customAlertModal = document.getElementById('custom-alert-modal');
+            alertTitle = document.getElementById('alert-title');
+            alertMessage = document.getElementById('alert-message');
+            alertCloseButton = document.getElementById('alert-close-button');
+            loadingModal = document.getElementById('loading-modal');
+
+            // formGroupsマップもここで初期化
+            formGroups = {
+                "title": document.getElementById('title-form-group'),
+                "category": categorySelect.closest('.form-group'), // ここでcategoryFormGroupを取得
+                "date": document.getElementById('date-form-group'),
+                "date-db": document.getElementById('date-db-form-group'), 
+                "year-db": document.getElementById('year-db-form-group'), 
+                "month-date-db": document.getElementById('month-date-db-form-group'), 
+                "location-store": document.getElementById('location-store-form-group'),
+                "event-date": document.getElementById('event-date-form-group'),
+                "race-number": document.getElementById('race-number-form-group'),
+                "race-name": document.getElementById('race-name-form-group'),
+                "class": document.getElementById('class-form-group'),
+                "distance": document.getElementById('distance-form-group'),
+                "distance-genre": document.getElementById('distance-genre-form-group'),
+                "condition": document.getElementById('condition-form-group'),
+                "horse-name": document.getElementById('horse-name-form-group'),
+                "betting-type": document.getElementById('betting-type-form-group'),
+                "expense": document.getElementById('expense-form-group'),
+                "income": document.getElementById('income-form-group'),
+                "balance": document.getElementById('balance-form-group'),
+                "device-type": document.getElementById('device-type-form-group'),
+                "type": document.getElementById('type-form-group'),
+                "manufacturer": document.getElementById('manufacturer-form-group'),
+                "media": document.getElementById('media-form-group'),
+                "memo": document.getElementById('memo-form-group')
+            };
+
+            // 全ての要素が取得できたかログで確認
+            for (const key in formGroups) {
+                if (!formGroups[key]) {
+                    console.error(`Error: Form group element for key "${key}" not found during DOMContentLoaded initialization.`);
+                }
+            }
+            if (!categorySelect) console.error("Error: categorySelect element not found!");
+            if (!expenseForm) console.error("Error: expenseForm element not found!");
+
+            setTodayDate();
+            
+            // カテゴリのデフォルト値を解除し、"選択してください"にする
+            categorySelect.value = "";
+            console.log(`Debug: After setting categorySelect.value to empty, current value: "${categorySelect.value}"`);
+            
+            // 明示的にchangeイベントをディスパッチして、updateFieldVisibilityをトリガー
+            // これにより、カテゴリが未選択の状態で、カテゴリフィールドのみが表示されるようになる
+            const event = new Event('change');
+            categorySelect.dispatchEvent(event);
+            console.log(`Debug: 'change' event dispatched on categorySelect.`);
+
+            // Close button event listener for the alert modal - DOMContentLoaded内へ移動
+            alertCloseButton.addEventListener('click', hideAlert);
+            customAlertModal.addEventListener('click', (event) => {
+                if (event.target === customAlertModal) {
+                    hideAlert();
+                }
+            });
 
             // Add event listeners for expense and income to update balance
             expenseInput.addEventListener('input', updateBalance);
             incomeInput.addEventListener('input', updateBalance);
-        });
 
-        // カテゴリーが変更されたときに全フィールドの表示/非表示と動的な入力フィールドを更新
-        categorySelect.addEventListener('change', updateFieldVisibility);
+            // カテゴリーが変更されたときに全フィールドの表示/非表示と動的な入力フィールドを更新
+            categorySelect.addEventListener('change', updateFieldVisibility);
 
-        // Date入力が変更されたときに日付関連フィールドを更新
-        dateInput.addEventListener('change', updateDateFields);
+            // Date入力が変更されたときに日付関連フィールドを更新
+            dateInput.addEventListener('change', updateDateFields);
 
-        // 距離が変更されたときに距離ジャンルを更新
-        distanceSelect.addEventListener('change', updateDistanceGenre);
+            // 距離が変更されたときに距離ジャンルを更新
+            distanceSelect.addEventListener('change', updateDistanceGenre);
 
-        // Add event listener for the web search button
-        webSearchButton.addEventListener('click', () => {
-            const selectedCategory = categorySelect.value;
-            const dateValue = dateInput.value;
-            const locationInput = document.getElementById('location-store-input');
-            const locationName = locationInput ? locationInput.value : '';
-            const raceNumberSelect = document.getElementById('race-number-select');
-            const raceNumber = raceNumberSelect ? raceNumberSelect.value : '';
+            // Add event listener for the web search button
+            webSearchButton.addEventListener('click', () => {
+                const selectedCategory = categorySelect.value;
+                const dateValue = dateInput.value;
+                const locationInput = document.getElementById('location-store-input');
+                const locationName = locationInput ? locationInput.value : '';
+                const raceNumberSelect = document.getElementById('race-number-select');
+                const raceNumber = raceNumberSelect ? raceNumberSelect.value : '';
 
-            if (!dateValue || !locationName || !raceNumber) {
-                showAlert("エラー", "日付、場名・店名、レース番号は検索のために必須です。", true); // isError true
-                return;
-            }
+                if (!dateValue || !locationName || !raceNumber) {
+                    showAlert("エラー", "日付、場名・店名、レース番号は検索のために必須です。", true);
+                    return;
+                }
 
-            // Format date for search query (YYYY年MM月DD日)
-            const dateObj = new Date(dateValue);
-            const year = dateObj.getFullYear();
-            const month = (dateObj.getMonth() + 1).toString(); // No padding needed for search
-            const day = dateObj.getDate().toString();
+                const dateObj = new Date(dateValue);
+                const year = dateObj.getFullYear();
+                const month = (dateObj.getMonth() + 1).toString();
+                const day = dateObj.getDate().toString();
 
-            let formattedDate = `${year}年${month}月${day}日`;
+                let formattedDate = `${year}年${month}月${day}日`;
 
-            // Construct base query
-            let searchQuery = `${formattedDate} ${locationName} ${raceNumber}`;
+                let searchQuery = `${formattedDate} ${locationName} ${raceNumber}`;
 
-            // Add site filters based on category
-            let siteFilter = '';
-            switch (selectedCategory) {
-                case "競馬":
-                    siteFilter = "site:jra.go.jp OR site:netkeiba.com";
-                    break;
-                case "地方競馬":
-                    siteFilter = "site:netkeiba.com";
-                    break;
-                case "競艇":
-                    siteFilter = "site:boatrace.jp";
-                    break;
-                case "競輪":
-                    siteFilter = "site:keirin.kdreams.jp";
-                    break;
-                // オートレースは特定のサイトフィルタなし
-            }
+                let siteFilter = '';
+                switch (selectedCategory) {
+                    case "競馬":
+                        siteFilter = "site:jra.go.jp OR site:netkeiba.com";
+                        break;
+                    case "地方競馬":
+                        siteFilter = "site:netkeiba.com";
+                        break;
+                    case "競艇":
+                        siteFilter = "site:boatrace.jp";
+                        break;
+                    case "競輪":
+                        siteFilter = "site:keirin.kdreams.jp";
+                        break;
+                }
 
-            // Encode fully, but preserve OR and colon for site filter
-            const fullQuery = encodeURIComponent(`${searchQuery} ${siteFilter}`).replace(/%20OR%20/g, '+OR+').replace(/%3A/g, ':'); 
+                const fullQuery = encodeURIComponent(`${searchQuery} ${siteFilter}`).replace(/%20OR%20/g, '+OR+').replace(/%3A/g, ':'); 
 
-            const googleUrl = `https://www.google.com/search?q=${fullQuery}`;
-            window.open(googleUrl, '_blank');
-        });
+                const googleUrl = `https://www.google.com/search?q=${fullQuery}`;
+                window.open(googleUrl, '_blank');
+            });
 
-
-        // フォーム送信時のバリデーション
-        expenseForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // デフォルトのフォーム送信を防止
-            
-            const selectedCategory = categorySelect.value;
-            const currentVisibility = visibilityMatrix[selectedCategory];
-            const missingFields = [];
-
-            // Iterate through the fields defined in formGroups to check visibility and required status
-            for (const fieldName in currentVisibility) {
-                const fieldSetting = currentVisibility[fieldName];
-                const formGroupElement = formGroups[fieldName];
+            // フォーム送信時のバリデーション
+            expenseForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
                 
-                // Only validate if the field group is visible AND it's marked as required in the matrix
-                if (formGroupElement && !formGroupElement.classList.contains('hidden') && fieldSetting.required) {
-                    let fieldValue = '';
-                    let element = null;
+                const selectedCategory = categorySelect.value;
+                const currentVisibility = visibilityMatrix[selectedCategory];
+                const missingFields = [];
 
-                    // Explicitly get element for category and race-number, then fall back to general
-                    if (fieldName === 'category') {
-                        element = document.getElementById('category-select');
-                    } else if (fieldName === 'race-number') {
-                        element = document.getElementById('race-number-select');
-                    } else if (document.getElementById(fieldName + '-input')) { // Check for direct input field
-                        element = document.getElementById(fieldName + '-input');
-                    } else if (document.getElementById(fieldName + '-select')) { // Check for direct select field
-                        element = document.getElementById(fieldName + '-select');
-                    } else { // Check if it's inside a dynamic container
-                        const container = document.getElementById(fieldName + '-input-container');
-                        if (container) {
-                            element = container.querySelector('input, select');
-                        }
-                    }
+                // カテゴリ自体が未選択の場合は、即座にエラーメッセージを追加
+                if (!selectedCategory) {
+                    missingFields.push(document.querySelector('#category-form-group label').textContent.replace('*', '').trim());
+                }
 
-                    // Skip validation for readonly DB fields like date-db, year-db, month-date-db, balance
-                    if (["date-db", "year-db", "month-date-db", "balance"].includes(fieldName)) {
-                        continue;
-                    }
+                for (const fieldName in currentVisibility) {
+                    // カテゴリは上記で既にチェック済み
+                    if (fieldName === "category") continue;
+
+                    const fieldSetting = currentVisibility[fieldName];
+                    const formGroupElement = formGroups[fieldName];
                     
-                    if (element) {
-                        let tempValueBeforeTrim = element.value; // Store before trim
-                        fieldValue = tempValueBeforeTrim;
-                        console.log(`Debug: [${fieldName}] (Before Trim) fieldValue = "${fieldValue}"`); // New debug line
-                        if (typeof fieldValue === 'string') {
-                            fieldValue = fieldValue.trim();
-                        }
-                        console.log(`Debug: [${fieldName}] (After Trim) fieldValue = "${fieldValue}"`); // New debug line
-                    } else {
-                        console.warn(`Warning: Input element for fieldName '${fieldName}' not found during validation.`);
-                    }
+                    if (formGroupElement && !formGroupElement.classList.contains('hidden') && fieldSetting.required) {
+                        let fieldValue = '';
+                        let element = null;
 
-                    if (!fieldValue) {
-                        const labelElement = formGroupElement.querySelector('label');
-                        if (labelElement) {
-                            const labelText = labelElement.textContent.replace('*', '').replace(':', '').trim();
-                            missingFields.push(labelText);
+                        // ここでのfieldNameはcategoryではないため、category-selectは直接対象外
+                        if (fieldName === 'race-number') {
+                            element = document.getElementById('race-number-select');
+                        } else if (document.getElementById(fieldName + '-input')) {
+                            element = document.getElementById(fieldName + '-input');
+                        } else if (document.getElementById(fieldName + '-select')) {
+                            element = document.getElementById(fieldName + '-select');
                         } else {
-                            missingFields.push(fieldName);
+                            const container = document.getElementById(fieldName + '-input-container');
+                            if (container) {
+                                element = container.querySelector('input, select');
+                            }
+                        }
+
+                        if (["date-db", "year-db", "month-date-db", "balance"].includes(fieldName)) {
+                            continue;
+                        }
+                        
+                        if (element) {
+                            let tempValueBeforeTrim = element.value;
+                            fieldValue = tempValueBeforeTrim;
+                            console.log(`Debug: [${fieldName}] (Before Trim) fieldValue = "${fieldValue}"`);
+                            if (typeof fieldValue === 'string') {
+                                fieldValue = fieldValue.trim();
+                            }
+                            console.log(`Debug: [${fieldName}] (After Trim) fieldValue = "${fieldValue}"`);
+                        } else {
+                            console.warn(`Warning: Input element for fieldName '${fieldName}' not found during validation.`);
+                        }
+
+                        if (!fieldValue) {
+                            const labelElement = formGroupElement.querySelector('label');
+                            if (labelElement) {
+                                const labelText = labelElement.textContent.replace('*', '').replace(':', '').trim();
+                                missingFields.push(labelText);
+                            } else {
+                                missingFields.push(fieldName);
+                            }
                         }
                     }
                 }
-            }
 
-            if (missingFields.length > 0) {
-                const message = `以下の必須項目が未入力です。\n\n- ${missingFields.join('\n- ')}`;
-                showAlert("入力エラー", message, true); // isError true
-            } else {
-                // すべての必須項目が入力されたらNotionに送信
-                showLoading(); // 送信開始時にローディング表示
-                try {
-                    // Collect formData directly here for clarity and to ensure correct values are captured at submission time
-                    const formData = {
-                        title: document.getElementById('title-input')?.value || '',
-                        category: document.getElementById('category-select')?.value || '',
-                        date: document.getElementById('date-input')?.value || '',
-                        dateDb: document.getElementById('date-db-input')?.value || '',
-                        yearDb: document.getElementById('year-db-input')?.value || '',
-                        monthDateDb: document.getElementById('month-date-db-input')?.value || '',
-                        locationStore: document.getElementById('location-store-input') ? document.getElementById('location-store-input').value : '',
-                        raceNumber: document.getElementById('race-number-select') ? document.getElementById('race-number-select').value : '',
-                        eventDate: document.getElementById('event-date-select') ? document.getElementById('event-date-select').value : '',
-                        raceName: document.getElementById('race-name-input') ? document.getElementById('race-name-input').value : '',
-                        class: document.getElementById('class-input') ? document.getElementById('class-input').value : '',
-                        horseName: document.getElementById('horse-name-input') ? document.getElementById('horse-name-input').value : '',
-                        distance: document.getElementById('distance-select') ? document.getElementById('distance-select').value : '',
-                        distanceGenre: document.getElementById('distance-genre-input') ? document.getElementById('distance-genre-input').value : '',
-                        condition: document.getElementById('condition-input') ? document.getElementById('condition-input').value : '',
-                        bettingType: document.getElementById('betting-type-select') ? document.getElementById('betting-type-select').value : '',
-                        expense: document.getElementById('expense-input')?.value || '',
-                        income: document.getElementById('income-input')?.value || '',
-                        deviceType: document.getElementById('device-type-input') ? document.getElementById('device-type-input').value : '',
-                        type: document.getElementById('type-input') ? document.getElementById('type-input').value : '',
-                        manufacturer: document.getElementById('manufacturer-input') ? document.getElementById('manufacturer-input').value : '',
-                        media: document.getElementById('media-input')?.value || '',
-                        memo: document.getElementById('memo-input')?.value || ''
-                    };
+                if (missingFields.length > 0) {
+                    const message = `以下の必須項目が未入力です。\n\n- ${missingFields.join('\n- ')}`;
+                    showAlert("入力エラー", message, true);
+                } else {
+                    showLoading();
+                    try {
+                        const formData = {
+                            title: document.getElementById('title-input')?.value || '',
+                            category: document.getElementById('category-select')?.value || '',
+                            date: document.getElementById('date-input')?.value || '',
+                            dateDb: document.getElementById('date-db-input')?.value || '',
+                            yearDb: document.getElementById('year-db-input')?.value || '',
+                            monthDateDb: document.getElementById('month-date-db-input')?.value || '',
+                            locationStore: document.getElementById('location-store-input') ? document.getElementById('location-store-input').value : '',
+                            raceNumber: document.getElementById('race-number-select') ? document.getElementById('race-number-select').value : '',
+                            eventDate: document.getElementById('event-date-select') ? document.getElementById('event-date-select').value : '',
+                            raceName: document.getElementById('race-name-input') ? document.getElementById('race-name-input').value : '',
+                            class: document.getElementById('class-input') ? document.getElementById('class-input').value : '',
+                            horseName: document.getElementById('horse-name-input') ? document.getElementById('horse-name-input').value : '',
+                            distance: document.getElementById('distance-select') ? document.getElementById('distance-select').value : '',
+                            distanceGenre: document.getElementById('distance-genre-input') ? document.getElementById('distance-genre-input').value : '',
+                            condition: document.getElementById('condition-input') ? document.getElementById('condition-input').value : '',
+                            bettingType: document.getElementById('betting-type-select') ? document.getElementById('betting-type-select').value : '',
+                            expense: document.getElementById('expense-input')?.value || '',
+                            income: document.getElementById('income-input')?.value || '',
+                            deviceType: document.getElementById('device-type-input') ? document.getElementById('device-type-input').value : '',
+                            type: document.getElementById('type-input') ? document.getElementById('type-input').value : '',
+                            manufacturer: document.getElementById('manufacturer-input') ? document.getElementById('manufacturer-input').value : '',
+                            media: document.getElementById('media-input')?.value || '',
+                            memo: document.getElementById('memo-input')?.value || ''
+                        };
 
-                    // Calculate balance directly within formData
-                    formData.balance = (parseFloat(formData.income) || 0) - (parseFloat(formData.expense) || 0);
+                        formData.balance = (parseFloat(formData.income) || 0) - (parseFloat(formData.expense) || 0);
 
-                    console.log("Debug: Final formData for submission:", formData);
+                        console.log("Debug: Final formData for submission:", formData);
+                        console.log("Debug: Attempting to fetch to GAS_WEB_APP_URL:", GAS_WEB_APP_URL);
 
 
-                    const response = await fetch(GAS_WEB_APP_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(formData),
-                    });
+                        const response = await fetch(GAS_WEB_APP_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(formData),
+                        });
 
-                    const result = await response.json();
+                        const result = await response.json();
 
-                    if (result.success) {
-                        showAlert("送信完了", "Notionにデータを送信しました。\n\n" + result.message, false); // isError false
-                        expenseForm.reset(); // フォームをリセット
-                        setTodayDate(); // 日付を今日に戻す
-                        updateFieldVisibility(); // フィールドの表示をリセット
-                        updateBalance(); // 収支をリセット
-                    } else {
-                        showAlert("送信失敗", "データの送信に失敗しました:\n\n" + result.message, true); // isError true
+                        if (result.success) {
+                            showAlert("送信完了", "Notionにデータを送信しました。\n\n" + result.message, false);
+                            expenseForm.reset();
+                            setTodayDate();
+                            // categorySelectの値をリセット後に再設定し、changeイベントをトリガー
+                            categorySelect.value = ""; 
+                            categorySelect.dispatchEvent(new Event('change'));
+                            updateBalance();
+                        } else {
+                            showAlert("送信失敗", "データの送信に失敗しました:\n\n" + result.message, true);
+                        }
+                    } catch (error) {
+                        console.error('Error sending data to GAS:', error);
+                        showAlert("エラー", "データの送信中にエラーが発生しました。\n\nネットワーク接続を確認するか、後でもう一度お試しください。", true);
+                    } finally {
+                        hideLoading();
                     }
-                } catch (error) {
-                    console.error('Error sending data to GAS:', error);
-                    showAlert("エラー", "データの送信中にエラーが発生しました。\n\nネットワーク接続を確認するか、後でもう一度お試しください。", true); // isError true
-                } finally {
-                    hideLoading(); // 送信完了時にローディングを非表示
                 }
-            }
+            });
         });
-
     </script>
 </body>
 </html>
