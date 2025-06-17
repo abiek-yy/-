@@ -245,46 +245,42 @@
             
             /* Day/Month/Year DB fields container */
             .flex-db-fields {
-                flex-direction: row; /* Keep them horizontal as per screenshot */
-                flex-wrap: wrap; /* Allow wrapping */
-                justify-content: space-between;
-                /* Adjust gap-x and gap-y for tighter fit */
-                gap-x: 0.9rem; /* Reduced horizontal gap */
-                gap-y: 0.5rem;
+                flex-direction: column; /* 縦並びに変更 */
+                gap: 0.5rem; /* 各DBフィールド間の縦方向のスペース */
                 width: 100%;
                 margin-top: 0.5rem;
                 box-sizing: border-box;
+                align-items: flex-start; /* ラベルと入力欄を左寄せに */
             }
             /* Individual DB field containers (年月日DB, 年DB, 年月DB) */
             .flex-db-fields > div {
-                /* Adjust flex-basis to allocate more space for content */
-                flex: 1 1 calc(33.33% - 0.3rem); /* Adjusted flex-basis to allow more width for input, accounting for smaller gap */
-                min-width: 70px; /* Smallest sensible min-width to avoid absurd shrinking, slightly smaller */
+                flex: 1 1 100%; /* 各要素が横幅いっぱいになるように設定 */
+                min-width: unset; /* 最小幅をリセット */
                 box-sizing: border-box;
-                display: flex; /* Keep label and input horizontal within each DB field */
+                display: flex; /* ラベルと入力は横並びを維持 */
                 align-items: center;
             }
             /* Labels inside DB fields */
             .flex-db-fields > div label { 
                 flex-shrink: 0;
-                width: 35px; /* Further reduced label width for tighter fit */
-                margin-right: 0.05rem; /* Smaller margin */
-                font-size: 0.6rem; /* Smaller font size */
-                text-align: right;
+                width: 65px; /* ラベルの幅を少し広げてテキストが見えるように */
+                margin-right: 0.2rem; /* マージンを調整 */
+                font-size: 0.75rem; /* フォントサイズを調整 */
+                text-align: left; /* ラベルを左寄せに */
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                padding-top: 0; /* Ensure no extra padding pushing elements */
+                padding-top: 0;
             }
             /* Inputs inside DB fields */
             .flex-db-fields > div input {
                 flex: 1;
-                width: 100%;
+                width: 100%; /* 入力欄が残りのスペースを埋める */
                 max-width: 100%;
                 box-sizing: border-box;
                 min-width: 0;
-                font-size: 0.75rem; /* Slightly larger font size for readability */
-                padding: 0.3rem 0.2rem; /* Smaller padding */
+                font-size: 0.85rem; /* 入力欄のフォントサイズを調整 */
+                padding: 0.4rem 0.3rem; /* パディングを調整 */
             }
 
             /* 横並びのグループを縦に並べる */
@@ -358,21 +354,21 @@
                 <label for="date-input">Date<span id="date-required" class="required-mark hidden">*</span></label>
                 <div class="flex-1 flex flex-col gap-y-2">
                     <input type="date" id="date-input" class="rounded-lg w-full">
-                    <div class="flex flex-wrap justify-between items-end gap-x-2 gap-y-2 flex-db-fields">
+                    <div class="flex flex-col gap-y-2 flex-db-fields">
                         <!-- 年月日DBフィールド -->
-                        <div class="flex-1 min-w-[calc(33%-0.5rem)] flex items-center" id="date-db-form-group">
+                        <div class="flex items-center" id="date-db-form-group">
                             <label for="date-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年月日DB</label>
                             <input type="text" id="date-db-input" placeholder="2024年" class="rounded-lg flex-1" readonly tabindex="-1">
                         </div>
-                        <!-- 年DBフィールド -->
-                        <div class="flex-1 min-w-[calc(33%-0.5rem)] flex items-center" id="year-db-form-group">
-                            <label for="year-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年DB</label>
-                            <input type="text" id="year-db-input" placeholder="6月" class="rounded-lg flex-1" readonly tabindex="-1">
-                        </div>
                         <!-- 年月DBフィールド -->
-                        <div class="flex-1 min-w-[calc(33%-0.5rem)] flex items-center" id="month-date-db-form-group">
+                        <div class="flex items-center" id="month-date-db-form-group">
                             <label for="month-date-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年月DB</label>
                             <input type="text" id="month-date-db-input" placeholder="2024年6月" class="rounded-lg flex-1" readonly tabindex="-1">
+                        </div>
+                        <!-- 年DBフィールド -->
+                        <div class="flex items-center" id="year-db-form-group">
+                            <label for="year-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年DB</label>
+                            <input type="text" id="year-db-input" placeholder="6月" class="rounded-lg flex-1" readonly tabindex="-1">
                         </div>
                     </div>
                 </div>
