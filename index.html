@@ -583,8 +583,21 @@
             <button id="alert-close-button" class="modal-close-button">閉じる</button>
         </div>
     </div>
+    
+    <!-- Loading Modal -->
+    <div id="loading-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto"></div>
+            <p class="mt-4 text-white">Notionにデータを送信中...</p>
+        </div>
+    </div>
+
 
     <script>
+        // *** GAS Web App URLをここに貼り付けてください ***
+        // Google Apps Scriptをデプロイした後に得られるURL
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxNxU2HxafIXKT0y3bgBzNSeF-mWEoU8rjSHQu_KbedVpoAwB1e3FDB03I2W0pf1eHBsg/exec"; 
+
         // カテゴリーに応じた場名・店名の候補データ
         const locationData = {
             "競馬": [
@@ -1055,6 +1068,7 @@
         const customAlertModal = document.getElementById('custom-alert-modal');
         const alertMessage = document.getElementById('alert-message');
         const alertCloseButton = document.getElementById('alert-close-button');
+        const loadingModal = document.getElementById('loading-modal'); // Loading modal element
 
         // Function to show custom alert modal
         function showAlert(message) {
@@ -1065,6 +1079,16 @@
         // Function to hide custom alert modal
         function hideAlert() {
             customAlertModal.classList.remove('show');
+        }
+
+        // Function to show loading modal
+        function showLoading() {
+            loadingModal.classList.add('show');
+        }
+
+        // Function to hide loading modal
+        function hideLoading() {
+            loadingModal.classList.remove('show');
         }
 
         // Close button event listener for the alert modal
@@ -1264,7 +1288,7 @@
                 genre = "Sprint(スプリント)";
             } else if (selectedDistance >= distanceGenreData["Mile(マイル)"][0] && selectedDistance <= distanceGenreData["Mile(マイル)"][1]) {
                 genre = "Mile(マイル)";
-            } else if (selectedDistance >= distanceGenreData["Intermediate(インターミディエイト)"][0] && selectedDistance <= distanceGenreData["Intermediate(インターミディエイト)"][1]) {
+            } else if (selectedDistance >= distanceGenreData["Intermediate(インターミディエイト)"][0] && selectedDistance <= distanceGenreData["Intermediate(インターmEdiate)"][1]) {
                 genre = "Intermediate(インターミディエイト)";
             } else if (selectedDistance >= distanceGenreData["Long(ロング)"][0] && selectedDistance <= distanceGenreData["Long(ロング)"][1]) {
                 genre = "Long(ロング)";
@@ -1718,7 +1742,7 @@
 
 
         // フォーム送信時のバリデーション
-        expenseForm.addEventListener('submit', (event) => {
+        expenseForm.addEventListener('submit', async (event) => {
             event.preventDefault(); // デフォルトのフォーム送信を防止
             
             const selectedCategory = categorySelect.value;
@@ -1739,7 +1763,7 @@
                     if (fieldName === 'title' || fieldName === 'date' || fieldName === 'expense' || fieldName === 'income' || fieldName === 'media' || fieldName === 'memo') {
                         inputElement = document.getElementById(fieldName + '-input');
                         fieldValue = inputElement ? inputElement.value.trim() : '';
-                    } else if (fieldName === 'betting-type' || fieldName === 'distance' || fieldName === 'event-date' || fieldName === 'race-number') {
+                    } else if (fieldName === 'betting-type' || fieldName === 'distance') {
                         inputElement = document.getElementById(fieldName + '-select');
                         fieldValue = inputElement ? inputElement.value : '';
                     } else if (["location-store", "race-name", "class", "condition", "horse-name", "device-type", "type", "manufacturer"].includes(fieldName)) {
@@ -1758,6 +1782,18 @@
                     }
 
                     // Perform validation check
+                    // ここで race-number-select の値が実際に空でないかを確認するログを追加します
+                    if (fieldName === 'race-number') {
+                        const raceNumberSelectElement = document.getElementById('race-number-select');
+                        if (raceNumberSelectElement) {
+                            console.log(`Debug: race-number-select value is "${raceNumberSelectElement.value}"`);
+                            console.log(`Debug: race-number-select selectedIndex is ${raceNumberSelectElement.selectedIndex}`);
+                            if (raceNumberSelectElement.selectedIndex !== -1) {
+                                console.log(`Debug: race-number-select option text is "${raceNumberSelectElement.options[raceNumberSelectElement.selectedIndex].text}"`);
+                            }
+                        }
+                    }
+
                     if (!fieldValue) {
                         // Get the label text for the missing field
                         const labelElement = formGroupElement.querySelector('label');
@@ -1776,11 +1812,60 @@
                 const message = `以下の必須項目が未入力です。\n\n- ${missingFields.join('\n- ')}`;
                 showAlert(message);
             } else {
-                // All required fields are filled, proceed with form submission logic
-                showAlert("すべての必須項目が入力されました。データを送信します。"); // For demonstration
-                console.log("Form submitted successfully!");
-                // In a real application, you would send the form data here.
-                // expenseForm.submit(); // Uncomment to actually submit the form
+                // すべての必須項目が入力されたらNotionに送信
+                showLoading(); // 送信開始時にローディング表示
+                try {
+                    const formData = {
+                        title: document.getElementById('title-input').value,
+                        category: document.getElementById('category-select').value,
+                        date: document.getElementById('date-input').value,
+                        dateDb: document.getElementById('date-db-input').value,
+                        yearDb: document.getElementById('year-db-input').value,
+                        monthDateDb: document.getElementById('month-date-db-input').value,
+                        locationStore: document.getElementById('location-store-input') ? document.getElementById('location-store-input').value : '',
+                        raceNumber: document.getElementById('race-number-select') ? document.getElementById('race-number-select').value : '',
+                        eventDate: document.getElementById('event-date-select') ? document.getElementById('event-date-select').value : '',
+                        raceName: document.getElementById('race-name-input') ? document.getElementById('race-name-input').value : '',
+                        class: document.getElementById('class-input') ? document.getElementById('class-input').value : '',
+                        horseName: document.getElementById('horse-name-input') ? document.getElementById('horse-name-input').value : '',
+                        distance: document.getElementById('distance-select') ? document.getElementById('distance-select').value : '',
+                        distanceGenre: document.getElementById('distance-genre-input') ? document.getElementById('distance-genre-input').value : '',
+                        condition: document.getElementById('condition-input') ? document.getElementById('condition-input').value : '',
+                        bettingType: document.getElementById('betting-type-select') ? document.getElementById('betting-type-select').value : '',
+                        expense: document.getElementById('expense-input').value,
+                        income: document.getElementById('income-input').value,
+                        deviceType: document.getElementById('device-type-input') ? document.getElementById('device-type-input').value : '',
+                        type: document.getElementById('type-input') ? document.getElementById('type-input').value : '',
+                        manufacturer: document.getElementById('manufacturer-input') ? document.getElementById('manufacturer-input').value : '',
+                        media: document.getElementById('media-input').value,
+                        memo: document.getElementById('memo-input').value
+                    };
+
+                    const response = await fetch(GAS_WEB_APP_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData),
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showAlert("Notionにデータを送信しました。\n\n" + result.message);
+                        expenseForm.reset(); // フォームをリセット
+                        setTodayDate(); // 日付を今日に戻す
+                        updateFieldVisibility(); // フィールドの表示をリセット
+                        updateBalance(); // 収支をリセット
+                    } else {
+                        showAlert("データの送信に失敗しました:\n\n" + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error sending data to GAS:', error);
+                    showAlert("データの送信中にエラーが発生しました。\n\nネットワーク接続を確認するか、後でもう一度お試しください。");
+                } finally {
+                    hideLoading(); // 送信完了時にローディングを非表示
+                }
             }
         });
 
