@@ -201,7 +201,7 @@
                 font-size: 1.5rem; /* 小さい画面でのタイトルサイズ */
             }
             
-            /* 個々のフォームグループ (ラベルと入力欄) を横並びにする */
+            /* 個々のフォームグループ (ラベルと入力欄) は横並びを維持 */
             .form-group {
                 flex-direction: row; /* モバイルでも横並びを維持 */
                 align-items: center; /* 垂直方向中央揃え */
@@ -220,53 +220,50 @@
                 width: auto; /* 自動幅調整 */
             }
 
-            /* 日付DBフィールドを横並びにする */
+            /* 日付DBフィールドを縦に並べる */
             .flex-db-fields {
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 0.5rem; /* 0.5rem gap between items */
+                flex-direction: column; /* 縦並びに変更 */
+                gap: 0.5rem;
                 width: 100%;
                 margin-top: 0.5rem;
             }
             .flex-db-fields > div {
-                /* Each div will take roughly 33.33% minus gap space */
-                flex: 1 1 calc(33.33% - (2 * 0.5rem / 3)); /* (2 gaps * gap size) / number of items */
-                min-width: 90px; /* Smallest individual width before wrapping */
-                box-sizing: border-box; /* Ensure padding/border are included in width */
-                /* For the inner label/input to be horizontal within this div */
-                display: flex;
+                width: 100%; /* 横幅いっぱいに */
+                box-sizing: border-box;
+                display: flex; /* 各DBフィールド内のラベルと入力は横並びを維持 */
                 align-items: center;
             }
             .flex-db-fields > div label { /* Labels inside these sub-divs */
-                flex: none; /* Do not participate in parent flex */
-                width: auto; /* Allow label to size naturally */
-                text-align: right; /* Align right to input */
-                margin-bottom: 0; /* No bottom margin, use right margin for spacing */
-                margin-right: 0.25rem; /* Small right margin for spacing */
+                flex: none; 
+                width: auto; 
+                text-align: right; 
+                margin-bottom: 0; 
+                margin-right: 0.25rem; 
                 font-size: 0.75rem;
             }
             .flex-db-fields > div input { /* Inputs inside these sub-divs */
-                flex: 1; /* Input takes remaining space */
-                width: auto; /* Remove fixed width */
+                flex: 1; 
+                width: auto; 
                 box-sizing: border-box;
             }
 
-            /* 横並びのグループがモバイルでも横並びを維持する */
+            /* 横並びのグループを縦に並べる */
             .flex-group-wrapper {
-                flex-direction: row; /* モバイルでも横並びを維持 */
-                flex-wrap: wrap; /* 複数の要素がある場合は折り返す */
-                gap: 0.75rem; /* 少し狭い間隔 */
-                margin-bottom: 0.75rem; /* 間隔を調整 */
+                flex-direction: column; /* 縦並びに変更 */
+                gap: 0.75rem;
+                margin-bottom: 0.75rem;
             }
             .flex-group-wrapper .form-group {
-                flex: 1 1 calc(50% - 0.375rem); /* Default to 2 columns for better readability on narrow screens */
-                min-width: 140px; /* Ensure sufficient width for input content */
-                box-sizing: border-box; /* Added for consistency */
+                width: 100%; /* 横幅いっぱいに */
+                flex: none; /* flexプロパティをリセット */
+                min-width: unset; /* min-widthをリセット */
+                box-sizing: border-box;
             }
-            /* 3つの要素を持つflex-group-wrapperの調整 */
+            /* 3つの要素を持つflex-group-wrapperの調整は、縦並びになったため不要 */
             .flex-group-wrapper:has(> .form-group:nth-child(3)):not(:has(> .form-group:nth-child(4))) .form-group {
-                 flex: 1 1 calc(33.33% - 0.5rem); /* 3分割 */
-                 min-width: 110px; /* Increased min-width to make them larger or force earlier wrapping to 2 columns */
+                 /* 縦並びになるため、これらのルールは削除または無効化 */
+                 flex: none;
+                 min-width: unset;
             }
         }
     </style>
@@ -568,7 +565,7 @@
                 "SG", "GⅠ", "GⅡ", "一般"
             ],
             "パチンコ": [],
-            "スロット": [],
+            "स्ロット": [],
             "ポーカー": [],
             "麻雀": [],
             "その他": []
