@@ -234,19 +234,22 @@
                 align-items: center;
                 min-width: unset; /* 親から継承される可能性のあるmin-widthをリセット */
             }
-            .flex-db-fields > div label { /* Labels inside these sub-divs */
-                flex: none; /* フレキシブルなスペースを取らない */
-                width: auto; /* 自然なサイズに調整 */
-                text-align: right; 
-                margin-bottom: 0; 
-                margin-right: 0.25rem; 
-                font-size: 0.75rem;
+            .flex-db-fields > div label { /* Labels inside 年月日DB, 年DB, 年月DB */
+                flex-shrink: 0; /* ラベルが縮まないようにする */
+                width: 50px; /* ラベルの幅を狭める */
+                margin-right: 0.15rem; /* 少しだけマージン */
+                font-size: 0.7rem; /* ラベルのフォントサイズを調整 */
+                text-align: right;
+                white-space: nowrap; /* テキストの折り返しを防ぐ */
+                overflow: hidden; /* はみ出したテキストを非表示にする */
+                text-overflow: ellipsis; /* はみ出したテキストに省略記号を付ける */
             }
-            .flex-db-fields > div input { /* Inputs inside these sub-divs */
-                flex: 1; /* 残りのスペースを埋める */
-                width: auto; 
+            .flex-db-fields > div input { /* Inputs inside 年月日DB, 年DB, 年月DB */
+                flex-grow: 1; /* 入力が残りのスペースを占めるようにする */
+                flex-shrink: 1; /* 必要に応じて縮小できるようにする */
+                flex-basis: auto; /* デフォルトの基準値 */
+                min-width: 0; /* 必要に応じて完全に縮小できるようにする */
                 box-sizing: border-box;
-                min-width: unset; /* 親から継承される可能性のあるmin-widthをリセット */
             }
 
             /* 横並びのグループを縦に並べる */
@@ -266,6 +269,18 @@
                  /* 縦並びになるため、これらのルールは削除または無効化 */
                  flex: none;
                  min-width: unset;
+            }
+
+            /* 馬場フィールドのラベル調整（メモ入力枠との統一性を確保） */
+            #horse-name-form-group label {
+                flex: 0 0 80px; /* モバイルでの一般的な.form-groupのラベル幅に合わせる */
+                margin-right: 0.5rem; /* モバイルでの一般的な.form-groupのラベルのマージンに合わせる */
+                font-size: 0.875rem; /* モバイルでの一般的な.form-groupのラベルのフォントサイズに合わせる */
+                text-align: right;
+            }
+            #horse-name-input-container input,
+            #horse-name-input-container select {
+                width: 100%; /* 入力/選択フィールドがコンテナの幅いっぱいに広がるようにする */
             }
         }
 
