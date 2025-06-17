@@ -523,12 +523,12 @@
             <div class="flex-group-wrapper">
                 <div class="form-group flex-1" id="expense-form-group">
                     <label for="expense-input">支出<span id="expense-required" class="required-mark hidden">*</span></label>
-                    <input type="number" id="expense-input" placeholder="支出額を入力" class="rounded-lg" step="100">
+                    <input type="number" id="expense-input" placeholder="支出額を入力" class="rounded-lg" step="100" min="0">
                 </div>
 
                 <div class="form-group flex-1" id="income-form-group">
                     <label for="income-input">収入<span id="income-required" class="required-mark hidden">*</span></label>
-                    <input type="number" id="income-input" placeholder="収入額を入力" class="rounded-lg">
+                    <input type="number" id="income-input" placeholder="収入額を入力" class="rounded-lg" min="0">
                 </div>
 
                 <div class="form-group flex-1" id="balance-form-group">
