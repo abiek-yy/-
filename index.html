@@ -596,7 +596,7 @@
     <script>
         // *** GAS Web App URLをここに貼り付けてください ***
         // Google Apps Scriptをデプロイした後に得られるURL
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxCL1CEojedVkUoGXYf6M0nL2kAT77mvUbmLu11qFWFhNDWfNguPCYXcjC4iaSehOCGuw/exec"; 
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxNxU2HxafIXKT0y3bgBzNSeF-mWEoU8rjSHQu_KbedVpoAwB1e3FDB03I2W0pf1eHBsg/exec"; 
 
         // カテゴリーに応じた場名・店名の候補データ
         const locationData = {
@@ -1785,6 +1785,22 @@
                     }
 
                     // Perform validation check
+                    // レース番号のデバッグログを強化
+                    if (fieldName === 'race-number') {
+                        const raceNumberSelectElement = document.getElementById('race-number-select');
+                        if (raceNumberSelectElement) {
+                            console.log(`Debug: race-number-select element found.`);
+                            console.log(`Debug: race-number-select value is "${raceNumberSelectElement.value}"`);
+                            console.log(`Debug: race-number-select selectedIndex is ${raceNumberSelectElement.selectedIndex}`);
+                            if (raceNumberSelectElement.selectedIndex !== -1) {
+                                console.log(`Debug: race-number-select option text is "${raceNumberSelectElement.options[raceNumberSelectElement.selectedIndex].text}"`);
+                            }
+                            console.log(`Debug: fieldValue for race-number is "${fieldValue}"`);
+                        } else {
+                            console.log(`Debug: race-number-select element NOT found.`);
+                        }
+                    }
+
                     if (!fieldValue) {
                         // Get the label text for the missing field
                         const labelElement = formGroupElement.querySelector('label');
