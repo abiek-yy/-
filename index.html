@@ -1685,6 +1685,7 @@
         // ページ読み込み時に初期状態を設定
         document.addEventListener('DOMContentLoaded', () => {
             setTodayDate(); // Set today's date as default
+            categorySelect.value = "競馬"; // カテゴリのデフォルト値を「競馬」に設定
             updateFieldVisibility(); // 初期表示でフィールドの表示/非表示と必須設定を行う
 
             // Add event listeners for expense and income to update balance
