@@ -759,6 +759,7 @@
         // 各フォームグループのIDをマップ
         const formGroups = {
             "title": document.getElementById('title-form-group'),
+            "category": document.getElementById('category-select').closest('.form-group'), // Add category form group
             "date": document.getElementById('date-form-group'),
             "date-db": document.getElementById('date-db-form-group'), 
             "year-db": document.getElementById('year-db-form-group'), 
@@ -787,6 +788,7 @@
         const visibilityMatrix = {
             "競馬": {
                 "title": { visible: true, required: false },
+                "category": { visible: true, required: true }, // Added category
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -812,6 +814,7 @@
             },
             "地方競馬": {
                 "title": { visible: true, required: false },
+                "category": { visible: true, required: true }, // Added category
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -837,6 +840,7 @@
             },
             "競艇": {
                 "title": { visible: true, required: false },
+                "category": { visible: true, required: true }, // Added category
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -862,6 +866,7 @@
             },
             "競輪": {
                 "title": { visible: true, required: false },
+                "category": { visible: true, required: true }, // Added category
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -887,6 +892,7 @@
             },
             "オートレース": {
                 "title": { visible: true, required: false },
+                "category": { visible: true, required: true }, // Added category
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -912,6 +918,7 @@
             },
             "パチンコ": {
                 "title": { visible: true, required: false },
+                "category": { visible: true, required: true }, // Added category
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -937,6 +944,7 @@
             },
             "スロット": {
                 "title": { visible: true, required: false },
+                "category": { visible: true, required: true }, // Added category
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -962,6 +970,7 @@
             },
             "ポーカー": {
                 "title": { visible: true, required: false },
+                "category": { visible: true, required: true }, // Added category
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -987,6 +996,7 @@
             },
             "麻雀": {
                 "title": { visible: true, required: false },
+                "category": { visible: true, required: true }, // Added category
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -1012,6 +1022,7 @@
             },
             "その他": { // Default to required if visible, otherwise false
                 "title": { visible: true, required: false },
+                "category": { visible: true, required: true }, // Added category
                 "date": { visible: true, required: true },
                 "date-db": { visible: true, required: false },
                 "year-db": { visible: true, required: false },
@@ -1582,7 +1593,7 @@
                     formGroups[key].classList.add('hidden');
                     // Remove required attribute from all elements initially
                     const inputOrSelect = formGroups[key].querySelector('input, select');
-                    if (inputOrSelect && inputOrSelect.id !== 'category-select') { // category-select is always visible and does not get its required set/unset
+                    if (inputOrSelect) { 
                         inputOrSelect.removeAttribute('required');
                     }
                     // Remove required mark
@@ -1605,22 +1616,19 @@
                         // Add required attribute if necessary, handling dynamic elements
                         if (fieldSetting.required) {
                             // Special handling for date-db, year-db, month-date-db as they are readonly
-                            if (["date-db", "year-db", "month-date-db"].includes(fieldName)) {
+                            if (["date-db", "year-db", "month-date-db", "balance"].includes(fieldName)) {
                                 // Do not set 'required' attribute, just ensure visibility.
                                 // Their 'required' status in matrix implies they are critical DB fields, not user input required.
                             } else {
                                 // For other fields, find the actual input/select and set required
                                 let inputElement = null;
-                                if (fieldName === 'title' || fieldName === 'date' || fieldName === 'expense' || fieldName === 'income' || fieldName === 'media' || fieldName === 'memo') {
-                                    inputElement = document.getElementById(fieldName + '-input');
-                                } else if (fieldName === 'betting-type' || fieldName === 'distance') {
-                                    inputElement = document.getElementById(fieldName + '-select');
+                                if (fieldName === 'title' || fieldName === 'date' || fieldName === 'expense' || fieldName === 'income' || fieldName === 'media' || fieldName === 'memo' || fieldName === 'category' || fieldName === 'betting-type' || fieldName === 'distance' || fieldName === 'event-date' || fieldName === 'race-number') {
+                                    // Direct input/select fields
+                                    inputElement = document.getElementById(fieldName + ((fieldName === 'category' || fieldName === 'betting-type' || fieldName === 'distance' || fieldName === 'event-date' || fieldName === 'race-number') ? '-select' : '-input'));
                                 } else { // Dynamic containers
                                     const container = document.getElementById(fieldName + '-input-container');
                                     if (container) {
                                         inputElement = container.querySelector('input, select');
-                                    } else if (fieldName === 'event-date' || fieldName === 'race-number') { // Specific selects not in dynamic containers
-                                        inputElement = document.getElementById(fieldName + '-select');
                                     }
                                 }
                                 
@@ -1759,57 +1767,61 @@
                 
                 // Only validate if the field group is visible AND it's marked as required in the matrix
                 if (formGroupElement && !formGroupElement.classList.contains('hidden') && fieldSetting.required) {
-                    let inputElement = null;
                     let fieldValue = '';
 
-                    // Get the actual input/select element and its value based on fieldName
-                    if (fieldName === 'title' || fieldName === 'date' || fieldName === 'expense' || fieldName === 'income' || fieldName === 'media' || fieldName === 'memo') {
-                        inputElement = document.getElementById(fieldName + '-input');
-                        fieldValue = inputElement ? inputElement.value.trim() : '';
-                    } else if (fieldName === 'betting-type' || fieldName === 'distance') {
-                        inputElement = document.getElementById(fieldName + '-select');
-                        fieldValue = inputElement ? inputElement.value : '';
-                    } else if (["location-store", "race-name", "class", "condition", "horse-name", "device-type", "type", "manufacturer"].includes(fieldName)) {
-                        // For dynamically created inputs/selects inside containers
+                    // Universal way to get the input/select element's value
+                    let element = null;
+                    if (document.getElementById(fieldName + '-input')) { // Check for direct input field
+                        element = document.getElementById(fieldName + '-input');
+                    } else if (document.getElementById(fieldName + '-select')) { // Check for direct select field
+                        element = document.getElementById(fieldName + '-select');
+                    } else { // Check if it's inside a dynamic container
                         const container = document.getElementById(fieldName + '-input-container');
-                        inputElement = container ? container.querySelector('input, select') : null;
-                        fieldValue = inputElement ? inputElement.value.trim() : '';
-                    } else if (fieldName === 'balance') {
-                        // Balance is read-only and calculated, so it's not a user input validation target.
-                        continue;
-                    }
-                    else if (["date-db", "year-db", "month-date-db"].includes(fieldName)) {
-                         // These are readonly and auto-filled, their 'required' in the matrix
-                         // is for visibility/importance, not user input. Skip actual validation for them.
-                         continue; 
-                    }
-
-                    // Perform validation check
-                    // レース番号のデバッグログを強化
-                    if (fieldName === 'race-number') {
-                        const raceNumberSelectElement = document.getElementById('race-number-select');
-                        if (raceNumberSelectElement) {
-                            console.log(`Debug: race-number-select element found.`);
-                            console.log(`Debug: race-number-select value is "${raceNumberSelectElement.value}"`);
-                            console.log(`Debug: race-number-select selectedIndex is ${raceNumberSelectElement.selectedIndex}`);
-                            if (raceNumberSelectElement.selectedIndex !== -1) {
-                                console.log(`Debug: race-number-select option text is "${raceNumberSelectElement.options[raceNumberSelectElement.selectedIndex].text}"`);
-                            }
-                            console.log(`Debug: fieldValue for race-number is "${fieldValue}"`);
-                        } else {
-                            console.log(`Debug: race-number-select element NOT found.`);
+                        if (container) {
+                            element = container.querySelector('input, select');
                         }
                     }
 
+                    // Skip validation for readonly DB fields like date-db, year-db, month-date-db, balance
+                    if (["date-db", "year-db", "month-date-db", "balance"].includes(fieldName)) {
+                        continue;
+                    }
+                    
+                    if (element) {
+                        fieldValue = element.value; 
+                        if (typeof fieldValue === 'string') {
+                            fieldValue = fieldValue.trim(); // Trim only if it's a string
+                        }
+                    } else {
+                        console.warn(`Warning: Input element for fieldName '${fieldName}' not found during validation.`);
+                    }
+
+                    // Add specific debug for race-number
+                    if (fieldName === 'race-number') {
+                        console.log(`Debug: (Validation Loop) FieldName: ${fieldName}`);
+                        console.log(`Debug: (Validation Loop) Element:`, element);
+                        if (element) {
+                            console.log(`Debug: (Validation Loop) Element.value (raw): "${element.value}"`);
+                        }
+                        console.log(`Debug: (Validation Loop) fieldValue (after trim): "${fieldValue}"`);
+                    }
+                    // Add specific debug for category
+                    if (fieldName === 'category') {
+                        console.log(`Debug: (Validation Loop) FieldName: ${fieldName}`);
+                        console.log(`Debug: (Validation Loop) Element:`, element);
+                        if (element) {
+                            console.log(`Debug: (Validation Loop) Element.value (raw): "${element.value}"`);
+                        }
+                        console.log(`Debug: (Validation Loop) fieldValue (after trim): "${fieldValue}"`);
+                    }
+
                     if (!fieldValue) {
-                        // Get the label text for the missing field
                         const labelElement = formGroupElement.querySelector('label');
                         if (labelElement) {
-                            // Extract just the text, removing the required mark if present
                             const labelText = labelElement.textContent.replace('*', '').replace(':', '').trim();
                             missingFields.push(labelText);
                         } else {
-                            missingFields.push(fieldName); // Fallback if label not found
+                            missingFields.push(fieldName);
                         }
                     }
                 }
@@ -1822,13 +1834,14 @@
                 // すべての必須項目が入力されたらNotionに送信
                 showLoading(); // 送信開始時にローディング表示
                 try {
+                    // Collect formData directly here for clarity and to ensure correct values are captured at submission time
                     const formData = {
-                        title: document.getElementById('title-input').value,
-                        category: document.getElementById('category-select').value,
-                        date: document.getElementById('date-input').value,
-                        dateDb: document.getElementById('date-db-input').value,
-                        yearDb: document.getElementById('year-db-input').value,
-                        monthDateDb: document.getElementById('month-date-db-input').value,
+                        title: document.getElementById('title-input')?.value || '',
+                        category: document.getElementById('category-select')?.value || '',
+                        date: document.getElementById('date-input')?.value || '',
+                        dateDb: document.getElementById('date-db-input')?.value || '',
+                        yearDb: document.getElementById('year-db-input')?.value || '',
+                        monthDateDb: document.getElementById('month-date-db-input')?.value || '',
                         locationStore: document.getElementById('location-store-input') ? document.getElementById('location-store-input').value : '',
                         raceNumber: document.getElementById('race-number-select') ? document.getElementById('race-number-select').value : '',
                         eventDate: document.getElementById('event-date-select') ? document.getElementById('event-date-select').value : '',
@@ -1839,14 +1852,20 @@
                         distanceGenre: document.getElementById('distance-genre-input') ? document.getElementById('distance-genre-input').value : '',
                         condition: document.getElementById('condition-input') ? document.getElementById('condition-input').value : '',
                         bettingType: document.getElementById('betting-type-select') ? document.getElementById('betting-type-select').value : '',
-                        expense: document.getElementById('expense-input').value,
-                        income: document.getElementById('income-input').value,
+                        expense: document.getElementById('expense-input')?.value || '',
+                        income: document.getElementById('income-input')?.value || '',
                         deviceType: document.getElementById('device-type-input') ? document.getElementById('device-type-input').value : '',
                         type: document.getElementById('type-input') ? document.getElementById('type-input').value : '',
                         manufacturer: document.getElementById('manufacturer-input') ? document.getElementById('manufacturer-input').value : '',
-                        media: document.getElementById('media-input').value,
-                        memo: document.getElementById('memo-input').value
+                        media: document.getElementById('media-input')?.value || '',
+                        memo: document.getElementById('memo-input')?.value || ''
                     };
+
+                    // Calculate balance directly within formData
+                    formData.balance = (parseFloat(formData.income) || 0) - (parseFloat(formData.expense) || 0);
+
+                    console.log("Debug: Final formData for submission:", formData);
+
 
                     const response = await fetch(GAS_WEB_APP_URL, {
                         method: 'POST',
