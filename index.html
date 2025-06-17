@@ -360,12 +360,12 @@
                             <label for="date-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年月日DB</label>
                             <input type="text" id="date-db-input" placeholder="2024年" class="rounded-lg flex-1" readonly tabindex="-1">
                         </div>
-                        <!-- 年月DBフィールド -->
+                        <!-- 年月DBフィールド (ここに移動) -->
                         <div class="flex items-center" id="month-date-db-form-group">
                             <label for="month-date-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年月DB</label>
                             <input type="text" id="month-date-db-input" placeholder="2024年6月" class="rounded-lg flex-1" readonly tabindex="-1">
                         </div>
-                        <!-- 年DBフィールド -->
+                        <!-- 年DBフィールド (ここに移動) -->
                         <div class="flex items-center" id="year-db-form-group">
                             <label for="year-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年DB</label>
                             <input type="text" id="year-db-input" placeholder="6月" class="rounded-lg flex-1" readonly tabindex="-1">
@@ -385,22 +385,29 @@
 
                 <div class="form-group flex-1" id="race-number-form-group">
                     <label for="race-number-select">レース番号<span id="race-number-required" class="required-mark hidden">*</span></label>
-                    <select id="race-number-select" class="rounded-lg">
-                        <option value="">選択してください</option>
-                        <option value="1R">1R</option>
-                        <option value="2R">2R</option>
-                        <option value="3R">3R</option>
-                        <option value="4R">4R</option>
-                        <option value="5R">5R</option>
-                        <option value="6R">6R</option>
-                        <option value="7R">7R</option>
-                        <option value="8R">8R</option>
-                        <option value="9R">9R</option>
-                        <option value="10R">10R</option>
-                        <option value="11R">11R</option>
-                        <option value="12R">12R</option>
-                        <option value="重勝式">重勝式</option>
-                    </select>
+                    <div class="flex-1 flex items-center gap-2"> <!-- Added flex container here -->
+                        <select id="race-number-select" class="rounded-lg flex-1">
+                            <option value="">選択してください</option>
+                            <option value="1R">1R</option>
+                            <option value="2R">2R</option>
+                            <option value="3R">3R</option>
+                            <option value="4R">4R</option>
+                            <option value="5R">5R</option>
+                            <option value="6R">6R</option>
+                            <option value="7R">7R</option>
+                            <option value="8R">8R</option>
+                            <option value="9R">9R</option>
+                            <option value="10R">10R</option>
+                            <option value="11R">11R</option>
+                            <option value="12R">12R</option>
+                            <option value="重勝式">重勝式</option>
+                        </select>
+                        <button type="button" id="web-search-button" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg flex-shrink-0" title="Web検索">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link">
+                                <path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -620,7 +627,7 @@
                 "SG", "GⅠ", "GⅡ", "一般"
             ],
             "パチンコ": [],
-            "スロット": [],
+            "स्ロット": [],
             "ポーカー": [],
             "麻雀": [],
             "その他": []
@@ -1040,6 +1047,9 @@
         const expenseInput = document.getElementById('expense-input');
         const incomeInput = document.getElementById('income-input');
         const balanceInput = document.getElementById('balance-input');
+        
+        // Add a reference to the web search button
+        const webSearchButton = document.getElementById('web-search-button');
 
         // Custom Alert Modal Elements
         const customAlertModal = document.getElementById('custom-alert-modal');
@@ -1605,6 +1615,14 @@
                 }
             }
             
+            // Control Web Search button visibility based on category
+            const relevantCategories = ["競馬", "地方競馬", "競艇", "競輪", "オートレース"];
+            if (relevantCategories.includes(selectedCategory)) {
+                webSearchButton.style.display = 'flex'; // Use flex to ensure proper icon alignment
+            } else {
+                webSearchButton.style.display = 'none';
+            }
+
             // フィールドの動的な更新もトリガー (required属性の適用も内部で行う)
             updateLocationInput();
             updateClassInput();
@@ -1647,6 +1665,57 @@
 
         // 距離が変更されたときに距離ジャンルを更新
         distanceSelect.addEventListener('change', updateDistanceGenre);
+
+        // Add event listener for the web search button
+        webSearchButton.addEventListener('click', () => {
+            const selectedCategory = categorySelect.value;
+            const dateValue = dateInput.value;
+            const locationInput = document.getElementById('location-store-input');
+            const locationName = locationInput ? locationInput.value : '';
+            const raceNumberSelect = document.getElementById('race-number-select');
+            const raceNumber = raceNumberSelect ? raceNumberSelect.value : '';
+
+            if (!dateValue || !locationName || !raceNumber) {
+                showAlert("日付、場名・店名、レース番号は検索のために必須です。");
+                return;
+            }
+
+            // Format date for search query (YYYY年MM月DD日)
+            const dateObj = new Date(dateValue);
+            const year = dateObj.getFullYear();
+            const month = (dateObj.getMonth() + 1).toString(); // No padding needed for search
+            const day = dateObj.getDate().toString();
+
+            let formattedDate = `${year}年${month}月${day}日`;
+
+            // Construct base query
+            let searchQuery = `${formattedDate} ${locationName} ${raceNumber}`;
+
+            // Add site filters based on category
+            let siteFilter = '';
+            switch (selectedCategory) {
+                case "競馬":
+                    siteFilter = "site:jra.go.jp OR site:netkeiba.com";
+                    break;
+                case "地方競馬":
+                    siteFilter = "site:netkeiba.com";
+                    break;
+                case "競艇":
+                    siteFilter = "site:boatrace.jp";
+                    break;
+                case "競輪":
+                    siteFilter = "site:keirin.kdreams.jp";
+                    break;
+                // オートレースは特定のサイトフィルタなし
+            }
+
+            // Encode fully, but preserve OR and colon for site filter
+            const fullQuery = encodeURIComponent(`${searchQuery} ${siteFilter}`).replace(/%20OR%20/g, '+OR+').replace(/%3A/g, ':'); 
+
+            const googleUrl = `https://www.google.com/search?q=${fullQuery}`;
+            window.open(googleUrl, '_blank');
+        });
+
 
         // フォーム送信時のバリデーション
         expenseForm.addEventListener('submit', (event) => {
