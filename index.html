@@ -1,788 +1,2428 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <base target="_top"> <!-- Apps Scriptウェブアプリの必須タグ -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>収支入力ページ</title>
-    <!-- Tailwind CSSを読み込む -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* フォントをInterに設定 */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #121212; /* さらに暗い背景色 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* 画面全体をカバー */
-            margin: 0;
-            padding: 20px; /* 全体のパディング */
-            box-sizing: border-box;
-            color: #cccccc; /* 全体的なテキスト色を少し暗く */
-        }
-        .container {
-            background-color: #1e1e1e; /* さらに暗いコンテナ背景色 */
-            padding: 2.5rem; /* 40px */
-            border-radius: 1.5rem; /* 24px */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25); /* シャドウをさらに濃く */
-            width: 100%;
-            max-width: 700px; /* 最大幅を少し広げる */
-        }
-        .form-group {
-            display: flex;
-            align-items: flex-start; /* ラベルと入力欄の上を揃える */
-            margin-bottom: 1rem; /* 16px */
-            width: 100%; /* Flexアイテム内で均等に広がるように設定 */
-        }
-        .form-group.hidden { /* 非表示にするためのクラス */
-            display: none !important; /* 強制的に非表示にする */
-        }
-        .form-group label {
-            flex: 0 0 100px; /* ラベルの幅を固定 */
-            margin-right: 1rem; /* 16px */
-            color: #b0b0b0; /* ラベルのテキスト色を少し暗く */
-            font-size: 0.95rem;
-            padding-top: 0.65rem; /* inputのpaddingと高さを合わせる */
-        }
-        /* inputとselectの両方に適用されるスタイル */
-        .form-group input,
-        .form-group select {
-            flex: 1; /* 入力フィールドが残りのスペースを埋める */
-            padding: 0.65rem 0.5rem; /* 10.4px 8px (horizontal padding reduced) */
-            border: 1px solid #333333; /* 枠線をさらに暗く */
-            border-radius: 0.5rem; /* 8px */
-            outline: none;
-            transition: border-color 0.2s, background-color 0.2s, color 0.2s;
-            min-width: 0; /* flexアイテムの最小幅を設定 */
-            background-color: #282828; /* 入力フィールドの背景色をさらに暗く */
-            color: #cccccc; /* 入力フィールドのテキスト色を少し暗く */
-            box-sizing: border-box; /* padding/borderがwidthに影響しないように */
-        }
-        /* inputとselectの両方に適用されるフォーカス時のスタイル */
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #63b3ed; /* フォーカス時の枠線色は維持（視認性のため） */
-            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3); /* フォーカス時のシャドウを調整 */
-        }
-        /* Readonlyのinputフィールドのスタイルを明示的に設定 */
-        .form-group input[readonly] {
-            background-color: #282828; /* 他の入力フィールドと同じ背景色 */
-            color: #cccccc; /* 他の入力フィールドと同じ文字色 */
-            cursor: default; /* カーソルをデフォルトに */
-            opacity: 0.9; /* 少し透明度を下げて非編集であることを強調 */
-        }
-        /* Disabledのselectフィールドのスタイル */
-        .form-group select[disabled] {
-            background-color: #282828; /* 他の入力フィールドと同じ背景色 */
-            color: #cccccc; /* 他の入力フィールドと同じ文字色 */
-            cursor: default; /* カーソルをデフォルトに */
-            opacity: 0.9; /* 少し透明度を下げて非選択であることを強調 */
-        }
-        .title {
-            text-align: center;
-            font-size: 1.875rem; /* 30px */
-            font-weight: bold;
-            color: #cccccc; /* タイトルのテキスト色を少し暗く */
-            margin-bottom: 2rem; /* 32px */
-        }
-        .submit-button {
-            width: 100%;
-            padding: 0.85rem; /* 13.6px */
-            background-color: #3b82f6; /* ボタンの背景色を青に変更 */
-            color: #ffffff;
-            font-weight: bold;
-            border-radius: 0.75rem; /* 12px */
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            border: none; /* 枠線をなくす */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12); /* ボタンのシャドウを調整 */
-        }
-        .submit-button:hover {
-            background-color: #2563eb; /* ホバー時の色を濃い青に変更 */
-            transform: translateY(-1px); /* 少し上に移動 */
-        }
-        .submit-button:active {
-            transform: translateY(0); /* クリック時に戻る */
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>収支入力</title>
+      
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: sans-serif;
+      padding: 1rem;
+    }
 
-        /* 必須項目マークのスタイル */
-        .required-mark {
-            color: #ef4444; /* 赤色 */
-            margin-left: 0.25rem; /* スペース */
-            font-weight: bold;
-            font-size: 0.8em;
-            vertical-align: super;
-        }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #1e1e1e;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
 
-        /* Custom Alert Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal-content {
-            background-color: #1e1e1e;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            color: #cccccc;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease;
-        }
-        .modal-overlay.show .modal-content {
-            transform: translateY(0);
-        }
-        .modal-content h3 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            /* color will be set dynamically based on type of message */
-        }
-        .modal-content p {
-            margin-bottom: 1.5rem;
-            font-size: 1rem;
-            line-height: 1.5;
-            white-space: pre-wrap; /* 改行を有効にする */
-        }
-        .modal-close-button {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.2s;
-        }
-        .modal-close-button:hover {
-            background-color: #2563eb;
-        }
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
 
-        /* 横並びのグループのスタイル */
-        .flex-group-wrapper {
-            display: flex;
-            gap: 1rem; /* グループ間のスペース */
-            margin-bottom: 1rem; /* 通常のform-groupと同じマージン */
-            width: 100%; /* 親要素の幅いっぱいに広げる */
-            flex-wrap: wrap; /* 要素が収まらない場合に折り返す */
-        }
-        .flex-group-wrapper .form-group {
-            margin-bottom: 0; /* ラッパー内のform-groupのマージンをリセット */
-            flex: 1 1 calc(33.33% - 0.66rem); /* デフォルトで3分割を試みる */
-            min-width: 150px; /* 最小幅を設定して小さくなりすぎないように */
-        }
-        /* 2つの要素を持つflex-group-wrapperの調整 */
-        .flex-group-wrapper:has(> .form-group:nth-child(2)):not(:has(> .form-group:nth-child(3))) .form-group {
-            flex: 1 1 calc(50% - 0.5rem); /* 2分割 */
-            min-width: 200px;
-        }
+    /* 各入力要素のコンテナを非表示にするためのスタイル */
+    .form-field-container {
+        display: none;
+        margin-bottom: 1rem; /* 各フィールド間のデフォルトの間隔 */
+    }
+    /* 表示する要素にはflexまたはblockを適用 */
+    .form-field-container.show-flex {
+        display: flex;
+        align-items: center;
+    }
+    .form-field-container.show-block {
+        display: block;
+    }
 
-        /* レスポンシブデザイン */
-        @media (max-width: 600px) {
-            .container {
-                padding: 1.5rem; /* 小さい画面でのパディング */
-            }
-            .title {
-                font-size: 1.5rem; /* 小さい画面でのタイトルサイズ */
-            }
-            
-            /* 個々のフォームグループ (ラベルと入力欄) は横並びを維持 */
-            .form-group {
-                flex-direction: row; /* モバイルでも横並びを維持 */
-                align-items: center; /* 垂直方向中央揃え */
-                margin-bottom: 0.75rem; /* 間隔を調整 */
-            }
-            .form-group label {
-                flex: 0 0 80px; /* ラベルの幅を固定 (少し狭く) */
-                margin-right: 0.5rem; /* ラベルと入力の間のスペース */
-                padding-top: 0; /* リセット */
-                text-align: right; /* ラベルを右寄せにして入力フィールドと揃える */
-                font-size: 0.875rem; /* ラベルのフォントサイズを調整 */
-            }
-            .form-group input,
-            .form-group select {
-                flex: 1; /* 入力フィールドが残りのスペースを埋める */
-                width: 100%; /* Ensure width is 100% of its flex container */
-                max-width: 100%; /* Prevent it from exceeding 100% */
-                box-sizing: border-box; /* Crucial for preventing overflow due to padding/border */
-                min-width: 0; /* Allow inputs to shrink as much as possible */
-            }
+    /* 必須項目であることを示すアスタリスクのスタイル */
+    .required-label::after {
+        content: " *";
+        color: #f44336;
+        font-weight: bold;
+    }
+    /* 必須項目で未入力の場合の枠線スタイル (ブラウザデフォルトのrequiredスタイルも有効) */
+    input:invalid:not(:placeholder-shown),
+    select:invalid:not([value=""]):not([value="選択してください"]):not([value="場名を選択"]):not([value="開催日を選択"]):not([value="レース番号を選択"]):not([value="クラスを選択"]):not([value="条件を選択"]):not([value="馬場を選択"]):not([value="距離を選択"]):not([value="機種を選択"]):not([value="タイプを選択"]):not([value="メーカーを選択"]):not([value="券種を選択"]):not([value="カテゴリーを選択"]),
+    textarea:invalid:not(:placeholder-shown) {
+        border: 2px solid #f44336;
+    }
 
-            /* For the container holding date-input and flex-db-fields */
-            /* This div is the flex item that sits next to the 'Date' label */
-            #date-form-group > div.flex-1 {
-                width: calc(100% - 80px - 0.5rem); /* Total available width - label width - label margin */
-                flex-basis: auto;
-                flex-grow: 1; /* Allow to grow */
-                flex-shrink: 1; /* Allow to shrink */
-                min-width: 0; /* Allow to shrink to 0 */
-                box-sizing: border-box;
-            }
 
-            /* Date input itself, inside the above div */
-            #date-input {
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-                min-width: 0;
-            }
-            
-            /* Day/Month/Year DB fields container */
-            .flex-db-fields {
-                flex-direction: column; /* 縦並びに変更 */
-                gap: 0.5rem; /* 各DBフィールド間の縦方向のスペース */
-                width: 100%;
-                margin-top: 0.5rem;
-                box-sizing: border-box;
-                align-items: flex-start; /* ラベルと入力欄を左寄せに */
-            }
-            /* Individual DB field containers (年月日DB, 年DB, 年月DB) */
-            .flex-db-fields > div {
-                flex: 1 1 100%; /* 各要素が横幅いっぱいになるように設定 */
-                min-width: unset; /* 最小幅をリセット */
-                box-sizing: border-box;
-                display: flex; /* ラベルと入力は横並びを維持 */
-                align-items: center;
-            }
-            /* Labels inside DB fields */
-            .flex-db-fields > div label { 
-                flex-shrink: 0;
-                width: 65px; /* ラベルの幅を少し広げてテキストが見えるように */
-                margin-right: 0.2rem; /* マージンを調整 */
-                font-size: 0.75rem; /* フォントサイズを調整 */
-                text-align: left; /* ラベルを左寄せに */
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                padding-top: 0;
-            }
-            /* Inputs inside DB fields */
-            .flex-db-fields > div input {
-                flex: 1;
-                width: 100%; /* 入力欄が残りのスペースを埋める */
-                max-width: 100%;
-                box-sizing: border-box;
-                min-width: 0;
-                font-size: 0.85rem; /* 入力欄のフォントサイズを調整 */
-                padding: 0.4rem 0.3rem; /* パディングを調整 */
-            }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #2b2b2b;
+      color: #fff;
+    }
 
-            /* 横並びのグループを縦に並べる */
-            .flex-group-wrapper {
-                flex-direction: column; /* 縦並びに変更 */
-                gap: 0.75rem;
-                margin-bottom: 0.75rem;
-            }
-            .flex-group-wrapper .form-group {
-                width: 100%; /* 横幅いっぱいに */
-                flex: none; /* flexプロパティをリセット */
-                min-width: unset; /* min-widthをリセット */
-                box-sizing: border-box;
-            }
+    textarea {
+      resize: vertical;
+      font-size: 0.9rem; /* メモの文字サイズを小さくする */
+    }
 
-            /* Ensure dynamic input containers also correctly constrain their children */
-            #location-store-input-container,
-            #class-input-container,
-            #condition-input-container,
-            #race-name-input-container,
-            #horse-name-input-container,
-            #device-type-input-container,
-            #type-input-container,
-            #manufacturer-input-container {
-                flex: 1;
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
-            }
-        }
+    /* ボタンを横並びにするためのスタイル */
+    .button-group {
+        display: flex;
+        justify-content: center; /* Default to center for new buttons */
+        margin-bottom: 0.5rem;
+        gap: 0.5rem; /* Consistent gap for all button groups */
+    }
+    /* ボタンの共通スタイル */
+    .button-group button {
+        flex: 1;
+        /* Default to equal width within their group */
+        padding: 0.8rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 8px;
+        background-color: #2196f3;
+        color: #fff;
+        cursor: pointer;
+        margin: 0;
+        /* Remove individual button margins, replaced by gap */
+    }
+    /* primaryボタンはデフォルト色 */
+    /* secondaryボタンのスタイル */
+    button.secondary {
+        background-color: #616161;
+        /* 収支管理と買い目ボタンの色 */
+    }
+    /* tertiaryボタンのスタイル（クリアボタン用） */
+    button.tertiary {
+        background-color: #CCCCCC;
+        /* 暗めの白色 */
+        color: #333;
+        /* 文字色を濃くする */
+    }
 
-        /* 収支の表示枠を無くす */
-        #balance-input[readonly] {
-            border: none !important; /* 枠線をなくす */
-            box-shadow: none !important; /* シャドウをなくす */
-            background-color: transparent !important; /* 背景を透明にする */
-            padding-left: 0 !important; /* 左パディングをなくすことで枠と重なるのを防ぐ */
-            padding-right: 0 !important;
-        }
-    </style>
+    /* 選択されたボタンのスタイル */
+    button.selected {
+        background-color: #4CAF50;
+        /* 緑色など、選択されたことがわかる色 */
+        border: 2px solid #fff;
+    }
+
+    /* Specific overrides for groups that need 'space-between' */
+    #betType-buttons-container,
+    .button-group:has(#saveRecordButton) { /* Select the button group containing #saveRecordButton */
+        justify-content: space-between;
+    }
+
+    /* Specific override for the decision/clear buttons to maintain proportional size and keep centered */
+    #decision-clear-buttons-container {
+        /* 親の.containerのコンテンツ幅と同じ幅に設定（500px - 1.5rem * 2 = 約452px） */
+        /* これを基準に、登録ボタンと同じ幅になるように調整 */
+        width: 100%;
+        /* 親要素の幅に合わせて広がる */
+        max-width: 452px;
+        /* 500px - 2*1.5rem の概算値。実際のpx値に合わせて調整してください */
+        margin: 0 auto 1.5rem auto;
+        /* 中央寄せし、下に1.5remの間隔を追加 */
+        display: flex;
+        /* Flexboxを有効にする */
+        justify-content: center;
+        /* ボタン間を中央に揃える */
+        gap: 0.5rem;
+        /* ボタン間の間隔 */
+    }
+    #decision-clear-buttons-container button {
+        flex: 1;
+        /* コンテナ内で均等な幅を占める */
+        /* 固定幅やmax-widthは不要。flex:1で親の幅に合わせて自動調整 */
+    }
+
+
+    /* 番号選択エリアのグリッドレイアウト */
+    .number-selection-grid-header,
+    .number-selection-grid {
+        display: grid;
+        grid-template-columns: 40px repeat(3, 1fr); /* 番号列を狭く、着順列を広げる */
+        gap: 5px;
+        /* グリッドアイテム間のスペース */
+        align-items: center;
+        /* 垂直方向中央揃え */
+        background-color: #2b2b2b;
+        border-radius: 8px;
+        padding: 0.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .number-selection-grid-header {
+        font-weight: bold;
+        text-align: center;
+        border-bottom: 1px solid #444;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .grid-cell {
+        padding: 0.2rem 0.1rem;
+        text-align: center;
+    }
+
+    .grid-row {
+        display: contents;
+        /* 親グリッドのレイアウトに参加させる */
+    }
+
+    .grid-number {
+        font-weight: bold;
+        color: #ddd;
+        /* デフォルトの文字色は白系 */
+        border-radius: 4px; /* 番号セルにも角丸を適用 */
+        height: 45px; /* ボタンと同じ高さを確保 */
+        display: flex; /* 中央寄せのためにflexboxを使用 */
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box; /* パディングとボーダーをサイズに含める */
+        font-size: 1.1rem; /* 番号の文字サイズを調整 */
+    }
+
+    /* 「選」ボタンのデフォルトスタイル */
+    .selection-button {
+        background-color: #424242; /* デフォルトの背景色をグレーに */
+        color: #ffffff;
+        font-weight: bold;
+        border: 1px solid #555;
+        border-radius: 4px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%; /* 親セルにフィット */
+        height: 45px; /* 高さを指定 */
+        box-sizing: border-box; /* パディングとボーダーをサイズに含める */
+        cursor: pointer;
+        transition: background-color 0.2s, border-color 0.2s; /* スムーズな変化 */
+        font-size: 1.1rem; /* 「選」ボタンの文字サイズを調整 */
+    }
+
+    .selection-button:hover {
+      background-color: #555; /* ホバー時の背景色 */
+    }
+
+    /* 選択された「選」ボタンのスタイル */
+    .selection-button.selected-number {
+        background-color: #2196f3; /* 青色 */
+        color: white;
+        border: none; /* 枠線なし */
+    }
+
+    /* 「全」ボタンのスタイル */
+    .all-selection-button {
+        width: 100%;
+        height: 45px;
+        background-color: #555;
+        color: #fff;
+        font-weight: bold;
+        border: 1px solid #777;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        box-sizing: border-box;
+        transition: background-color 0.2s, border-color 0.2s;
+    }
+    .all-selection-button:hover {
+        background-color: #666;
+    }
+    .all-selection-button.selected-number {
+        background-color: #4CAF50;
+        border: none;
+    }
+
+
+    .message {
+      text-align: center;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s, opacity 0.5s linear;
+    }
+
+    .message.show {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .message.success {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .message.error {
+        background-color: #f44336;
+        color: white;
+    }
+    .message.info {
+        background-color: #2196f3;
+        color: white;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+    }
+    .input-group input[type="number"] {
+      flex-grow: 1;
+      /* 入力フィールドが残りのスペースを埋める */
+      margin-right: 0.5rem;
+      margin-bottom: 0;
+      max-width: calc(100% - 120px);
+      /* 2つのボタンの幅を引いた分 */
+    }
+    .input-group button {
+      width: 60px;
+      /* ボタンの横幅を大きくする */
+      height: 40px;
+      margin-bottom: 0;
+      padding: 0;
+      font-size: 1.5rem;
+      border-radius: 8px; /* 少し丸みを帯びた四角 */
+      background-color: #78909C; /* 優しい青灰色 */
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0; /* ボタンが縮まないようにする */
+    }
+    .input-group button:first-of-type {
+      margin-right: 0.5rem;
+    }
+    .input-group button:last-child {
+      margin-left: 0;
+    }
+
+
+    #profit {
+        border: none;
+        background-color: transparent;
+        font-weight: bold;
+    }
+    #distanceType {
+        border: none;
+        background-color: transparent;
+    }
+
+    .sheet-link {
+        display: block;
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+    .sheet-link a {
+        color: #88aadd;
+        text-decoration: none;
+    }
+    .sheet-link a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Styles for disabled selection columns */
+    .grid-cell.disabled-column button {
+        background-color: #333 !important; /* Darker gray to indicate disabled */
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    /* 点数表示の新しいスタイル */
+    .total-points-display-container {
+        text-align: center;
+        margin: 10px auto 1rem auto; /* 中央寄せ、上下のマージン */
+        padding: 0.6rem; /* 小さく */
+        background-color: #424242; /* 暗めのグレー */
+        color: white;
+        font-size: 1.2rem; /* 小さく */
+        font-weight: bold;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        width: 150px; /* 横幅を狭める */
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="title">収支入力ページ</h1>
-
-        <form id="expense-form">
-            <div class="form-group" id="title-form-group">
-                <label for="title-input">タイトル</label>
-                <input type="text" id="title-input" placeholder="タイトルを入力" class="rounded-lg">
-            </div>
-
-            <div class="form-group" id="category-form-group">
-                <label for="category-select">カテゴリ<span id="category-required" class="required-mark">*</span></label>
-                <select id="category-select" class="rounded-lg" required>
-                    <option value="">選択してください</option>
-                    <option value="競馬">競馬</option>
-                    <option value="地方競馬">地方競馬</option>
-                    <option value="競艇">競艇</option>
-                    <option value="競輪">競輪</option>
-                    <option value="オートレース">オートレース</option>
-                    <option value="パチンコ">パチンコ</option>
-                    <option value="スロット">スロット</option>
-                    <option value="ポーカー">ポーカー</option>
-                    <option value="麻雀">麻雀</option>
-                    <option value="その他">その他</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="date-form-group">
-                <label for="date-input">Date<span id="date-required" class="required-mark hidden">*</span></label>
-                <div class="flex-1 flex flex-col gap-y-2">
-                    <input type="date" id="date-input" class="rounded-lg w-full">
-                    <div class="flex flex-col gap-y-2 flex-db-fields">
-                        <!-- 年月日DBフィールド -->
-                        <div class="flex items-center" id="date-db-form-group">
-                            <label for="date-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年月日DB</label>
-                            <input type="text" id="date-db-input" placeholder="2024年" class="rounded-lg flex-1" readonly tabindex="-1">
-                        </div>
-                        <!-- 年月DBフィールド (ここに移動) -->
-                        <div class="flex items-center" id="month-date-db-form-group">
-                            <label for="month-date-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年月DB</label>
-                            <input type="text" id="month-date-db-input" placeholder="2024年6月" class="rounded-lg flex-1" readonly tabindex="-1">
-                        </div>
-                        <!-- 年DBフィールド (ここに移動) -->
-                        <div class="flex items-center" id="year-db-form-group">
-                            <label for="year-db-input" class="text-sm font-medium text-[#b0b0b0] mr-1">年DB</label>
-                            <input type="text" id="year-db-input" placeholder="6月" class="rounded-lg flex-1" readonly tabindex="-1">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 場名・店名とレース番号を横並びに -->
-            <div class="flex-group-wrapper">
-                <div class="form-group flex-1" id="location-store-form-group">
-                    <label for="location-store-input-label">場名・店名<span id="location-store-required" class="required-mark hidden">*</span></label>
-                    <div id="location-store-input-container" class="flex-1 w-full">
-                        <input type="text" id="location-store-input" placeholder="場名・店名を入力" class="rounded-lg w-full">
-                    </div>
-                </div>
-
-                <div class="form-group flex-1" id="race-number-form-group">
-                    <label for="race-number-select">レース番号<span id="race-number-required" class="required-mark hidden">*</span></label>
-                    <div class="flex-1 flex items-center gap-2"> <!-- Added flex container here -->
-                        <select id="race-number-select" class="rounded-lg flex-1">
-                            <option value="">選択してください</option>
-                            <option value="1R">1R</option>
-                            <option value="2R">2R</option>
-                            <option value="3R">3R</option>
-                            <option value="4R">4R</option>
-                            <option value="5R">5R</option>
-                            <option value="6R">6R</option>
-                            <option value="7R">7R</option>
-                            <option value="8R">8R</option>
-                            <option value="9R">9R</option>
-                            <option value="10R">10R</option>
-                            <option value="11R">11R</option>
-                            <option value="12R">12R</option>
-                            <option value="重勝式">重勝式</option>
-                        </select>
-                        <button type="button" id="web-search-button" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg flex-shrink-0" title="Web検索">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link">
-                                <path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1 2-2V8a2 2 0 0 1 2-2h6"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-group" id="event-date-form-group">
-                <label for="event-date-select">開催日<span id="event-date-required" class="required-mark hidden">*</span></label>
-                <select id="event-date-select" class="rounded-lg">
-                    <option value="">選択してください</option>
-                    <option value="1日目">1日目</option>
-                    <option value="2日目">2日目</option>
-                    <option value="3日目">3日目</option>
-                    <option value="4日目">4日目</option>
-                    <option value="5日目">5日目</option>
-                    <option value="6日目">6日目</option>
-                    <option value="7日目">7日目</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="race-name-form-group">
-                <label for="race-name-input-label">レース名</label>
-                <div id="race-name-input-container" class="flex-1 w-full">
-                    <input type="text" id="race-name-input" placeholder="レース名を入力" class="rounded-lg w-full">
-                </div>
-            </div>
-
-            <div class="form-group" id="class-form-group">
-                <label for="class-input-label">クラス<span id="class-required" class="required-mark hidden">*</span></label>
-                <div id="class-input-container" class="flex-1 w-full">
-                    <input type="text" id="class-input" placeholder="クラスを入力" class="rounded-lg w-full">
-                    </div>
-                </div>
-
-            <!-- 馬場、距離、距離ジャンルを横並びに -->
-            <div class="flex-group-wrapper">
-                <div class="form-group flex-1" id="horse-name-form-group">
-                    <label for="horse-name-input-label">馬場<span id="horse-name-required" class="required-mark hidden">*</span></label>
-                    <div id="horse-name-input-container" class="flex-1 w-full">
-                        <input type="text" id="horse-name-input" placeholder="馬場を入力" class="rounded-lg w-full">
-                    </div>
-                </div>
-                <div class="form-group flex-1" id="distance-form-group">
-                    <label for="distance-select">距離<span id="distance-required" class="required-mark hidden">*</span></label>
-                    <select id="distance-select" class="rounded-lg">
-                        <option value="">選択してください</option>
-                        <option value="1000">1,000m</option>
-                        <option value="1100">1,100m</option>
-                        <option value="1200">1,200m</option>
-                        <option value="1230">1,230m</option>
-                        <option value="1300">1,300m</option>
-                        <option value="1400">1,400m</option>
-                        <option value="1500">1,500m</option>
-                        <option value="1600">1,600m</option>
-                        <option value="1700">1,700m</option>
-                        <option value="1800">1,800m</option>
-                        <option value="1900">1,900m</option>
-                        <option value="2000">2,000m</option>
-                        <option value="2100">2,100m</option>
-                        <option value="2200">2,200m</option>
-                        <option value="2300">2,300m</option>
-                        <option value="2400">2,400m</option>
-                        <option value="2500">2,500m</option>
-                        <option value="2600">2,600m</option>
-                        <option value="2700">2,700m</option>
-                        <option value="2800">2,800m</option>
-                        <option value="2900">2,900m</option>
-                        <option value="3000">3,000m</option>
-                        <option value="3100">3,100m</option>
-                        <option value="3200">3,200m</option>
-                        <option value="3300">3,300m</option>
-                        <option value="3400">3,400m</option>
-                        <option value="3500">3,500m</option>
-                        <option value="3600">3,600m</option>
-                        <option value="4100">4,100m</option>
-                        <option value="4250">4,250m</option>
-                        <option value="820">820m</option>
-                        <option value="その他">その他</option>
-                    </select>
-                </div>
-                <div class="form-group flex-1" id="distance-genre-form-group">
-                    <label for="distance-genre-input">距離ジャンル</label>
-                    <input type="text" id="distance-genre-input" placeholder="自動反映" class="rounded-lg" readonly tabindex="-1">
-                </div>
-            </div>
-
-            <!-- 条件は単独の行に配置 -->
-            <div class="form-group" id="condition-form-group">
-                <label for="condition-input">条件</label>
-                <div id="condition-input-container" class="flex-1 w-full">
-                    <input type="text" id="condition-input" placeholder="条件を入力" class="rounded-lg w-full">
-                </div>
-            </div>
-
-            <div class="form-group" id="betting-type-form-group">
-                <label for="betting-type-select">券種<span id="betting-type-required" class="required-mark hidden">*</span></label>
-                <select id="betting-type-select" class="rounded-lg">
-                    <option value="">選択してください</option>
-                    <option value="単勝">単勝</option>
-                    <option value="複勝">複勝</option>
-                    <option value="枠連">枠連</option>
-                    <option value="馬連">馬連</option>
-                    <option value="馬単">馬単</option>
-                    <option value="ワイド">ワイド</option>
-                    <option value="3連複">3連複</option>
-                    <option value="3連単">3連単</option>
-                    <option value="WIN5">WIN5</option>
-                    <option value="枠単">枠単</option>
-                    <option value="2連複">2連複</option>
-                    <option value="2連単">2連単</option>
-                    <option value="Dokanto.7">Dokanto.7</option>
-                </select>
-            </div>
-
-            <!-- 支出、収入、収支を横並びに -->
-            <div class="flex-group-wrapper">
-                <div class="form-group flex-1" id="expense-form-group">
-                    <label for="expense-input">支出<span id="expense-required" class="required-mark hidden">*</span></label>
-                    <input type="number" id="expense-input" placeholder="支出額を入力" class="rounded-lg" step="100" min="0">
-                </div>
-
-                <div class="form-group flex-1" id="income-form-group">
-                    <label for="income-input">収入<span id="income-required" class="required-mark hidden">*</span></label>
-                    <input type="number" id="income-input" placeholder="収入額を入力" class="rounded-lg" min="0">
-                </div>
-
-                <div class="form-group flex-1" id="balance-form-group">
-                    <label for="balance-input">収支</label>
-                    <input type="text" id="balance-input" placeholder="自動計算" class="rounded-lg" readonly tabindex="-1">
-                </div>
-            </div>
-
-            <!-- 機種、タイプ、メーカーを横並びに -->
-            <div class="flex-group-wrapper">
-                <div class="form-group flex-1" id="device-type-form-group">
-                    <label for="device-type-label">機種<span id="device-type-required" class="required-mark hidden">*</span></label>
-                    <div id="device-type-input-container" class="flex-1 w-full">
-                        <input type="text" id="device-type-input" placeholder="機種を入力" class="rounded-lg w-full">
-                    </div>
-                </div>
-
-                <div class="form-group flex-1" id="type-form-group">
-                    <label for="type-label">タイプ<span id="type-required" class="required-mark hidden">*</span></label>
-                    <div id="type-input-container" class="flex-1 w-full">
-                        <input type="text" id="type-input" placeholder="タイプを入力" class="rounded-lg w-full">
-                    </div>
-                </div>
-
-                <div class="form-group flex-1" id="manufacturer-form-group">
-                    <label for="manufacturer-label">メーカー<span id="manufacturer-required" class="required-mark hidden">*</span></label>
-                    <div id="manufacturer-input-container" class="flex-1 w-full">
-                        <input type="text" id="manufacturer-input" placeholder="メーカーを入力" class="rounded-lg w-full">
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group" id="media-form-group">
-                <label for="media-input">Media</label>
-                <input type="text" id="media-input" placeholder="Mediaを入力" class="rounded-lg">
-            </div>
-
-            <div class="form-group" id="memo-form-group">
-                <label for="memo-input">メモ</label>
-                <input type="text" id="memo-input" placeholder="メモを入力" class="rounded-lg">
-            </div>
-
-            <button type="submit" class="submit-button">送信</button>
-        </form>
+  <div class="container">
+    <h2>収支入力</h2>
+    <div class="form-field-container" id="title-container">
+      <input type="text" id="title" placeholder="タイトル" />
     </div>
 
-    <!-- Custom Alert Modal -->
-    <div id="custom-alert-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 id="alert-title"></h3> <!-- Changed from static to dynamic -->
-            <p id="alert-message"></p>
-            <button id="alert-close-button" class="modal-close-button">閉じる</button>
+    <div class="form-field-container show-block" id="category-container">
+      <select id="category">
+        <option value="">カテゴリーを選択</option>
+      </select>
+    </div>
+
+    <div class="form-field-container" id="date-container">
+      <input type="date" id="date" />
+      <input type="text" id="dateYMD" placeholder="年月日DB（自動入力/例：2025年6月23日）" readonly style="display: none;" />
+      <input type="text" id="dateYM" placeholder="年月DB（自動入力/例：2025年6月）" readonly style="display: none;" />
+      <input type="text" id="dateY" placeholder="年DB（自動入力/例：2025年）" readonly style="display: none;" />
+    </div>
+
+    <div class="form-field-container" id="kaisaibi-container">
+      <select id="kaisaibi"></select>
+    </div>
+
+    <div class="form-field-container" id="place-container">
+      <select id="place">
+          <option value="">場名を選択</option>
+      </select>
+    </div>
+
+    <div class="form-field-container" id="raceNo-container">
+      <select id="raceNo"></select>
+    </div>
+    <div class="form-field-container" id="raceName-container">
+      <input type="text" id="raceName" placeholder="レース名" />
+    </div>
+
+    <div class="form-field-container" id="class-container">
+      <select id="class"></select>
+    </div>
+    <div class="form-field-container" id="baba-container">
+      <select id="baba"></select>
+    </div>
+
+    <div class="form-field-container" id="distance-container">
+      <select id="distance"></select>
+      <input type="text" id="distanceType" placeholder="距離ジャンル（自動反映）" readonly style="display: none;" />
+    </div>
+
+    <div class="form-field-container" id="condition-container">
+      <select id="condition"></select>
+    </div>
+    <div class="form-field-container" id="ticket-container">
+      <select id="ticket">
+        <option value="">券種を選択</option>
+      </select>
+    </div>
+
+    <div class="form-field-container" id="machine-container">
+      <select id="machine"></select>
+    </div>
+    <div class="form-field-container" id="type-container">
+      <select id="type"></select>
+    </div>
+    <div class="form-field-container" id="maker-container">
+      <select id="maker"></select>
+    </div>
+
+    <div class="form-field-container" id="expense-container">
+      <div class="input-group">
+        <input type="number" id="expense" placeholder="支出" value="0" />
+        <button type="button" onclick="changeValue('expense', -100)">-</button>
+        <button type="button" onclick="changeValue('expense', 100)">+</button>
+      </div>
+    </div>
+
+    <div class="form-field-container" id="income-container">
+      <div class="input-group">
+        <input type="number" id="income" placeholder="収入" value="0" />
+        <button type="button" onclick="changeValue('income', -100)">-</button>
+        <button type="button" onclick="changeValue('income', 100)">+</button>
+      </div>
+    </div>
+
+    <div class="form-field-container" id="profit-container">
+      <input type="number" id="profit" placeholder="収支（自動計算）" readonly />
+    </div>
+
+    <div class="form-field-container" id="participantsCount-container">
+      <select id="participantsCount">
+        <option value="">出走数を選択</option>
+      </select>
+    </div>
+    
+    <div class="button-group form-field-container" id="betType-buttons-container">
+        <button class="secondary" data-bet-type="通常">通常</button>
+        <button class="secondary" data-bet-type="BOX">BOX</button>
+        <button class="secondary" data-bet-type="流し">流し</button>
+        <button class="secondary" data-bet-type="フォーメーション">フォーメーション</button>
+        <button class="secondary" data-bet-type="マルチ">マルチ</button>
+        <input type="hidden" id="betType" value="" /> 
+    </div>
+
+    <div class="button-group form-field-container" id="nageashi-sub-buttons-container" style="display: none;">
+        <button class="secondary" data-axis-type="1頭軸">1頭軸</button>
+        <button class="secondary" data-axis-type="2頭軸">2頭軸</button>
+        <input type="hidden" id="nageashiAxisType" value="" />
+    </div>
+
+    <div class="form-field-container" id="placeSelections-container">
+        <div class="number-selection-grid-header">
+            <div class="grid-cell" id="header-number">番号</div>
+            <div class="grid-cell" id="header-place1">1着</div>
+            <div class="grid-cell" id="header-place2">2着</div>
+            <div class="grid-cell" id="header-place3">3着</div>
+        </div>
+        <div class="number-selection-grid" id="numberSelectionGrid">
+        </div>
+        <input type="hidden" id="firstPlaceSelections" value="" />
+        <input type="hidden" id="secondPlaceSelections" value="" />
+        <input type="hidden" id="thirdPlaceSelections" value="" />
+        
+        <div class="total-points-display-container">
+            点数: <span id="totalPointsDisplay">0</span>点
         </div>
     </div>
     
-    <!-- Loading Modal -->
-    <div id="loading-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto"></div>
-            <p class="mt-4 text-white">Notionにデータを送信中...</p>
-        </div>
+    <div class="button-group form-field-container show-block" id="decision-clear-buttons-container">
+        <button class="primary" id="decisionButton">決定</button>
+        <button class="tertiary" id="clearPlaceSelectionsButton">クリア</button>
     </div>
 
+    <div class="form-field-container" id="memo-container">
+      <textarea id="memo" placeholder="メモ"></textarea>
+    </div>
 
-    <script>
-        // GASウェブアプリの公開URLを設定してください
-        // Code.gsを再デプロイした後に、ここで新しいURLに更新してください。
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwgwwov2iQ7-sN80gd_ArZeuOYvTSk2D5pErlD3blcL3R2Hs85NTZQX1_DpRHMAw2f06A/exec"; // ここをあなたのウェブアプリのURLに更新してください
+    <div class="button-group">
+        <button id="saveRecordButton">登録</button>
+        <button class="tertiary" onclick="clearForm()">クリア</button>
+    </div>
+    
+    <div class="button-group">
+        <button class="secondary" onclick="window.open('https://script.google.com/macros/s/AKfycbzpUhKBZQPTBiFTE8OmROKtbcO_smJj1hkrjk3bKaj5TpQVkw-IUWyPdqGC8NJMFq4/exec', '_blank');">収支管理</button>
+        <button class="secondary" onclick="window.open('https://script.google.com/macros/s/AKfycbydQUAhqXZRis_827BkBx2cA2e0ocdlX5XKl_jgHoPmDX81I9IAqGgPxafwR06ySWM2Zg/exec', '_blank');">収支分析</button>
+        <button class="secondary" onclick="window.open('https://script.google.com/macros/s/AKfycbzizKnIt8DiFwBXSNXZYP71Z_0Xb2xELH1Ft7mrreXVnLOwxhVyzGN1oEMDfMzZaeIP/exec', '_blank');">特殊買い目</button>
+    </div>
 
-        // カテゴリーに応じた場名・店名の候補データ
-        const locationData = {
-            "競馬": [
-                "札幌", "函館", "福島", "新潟", "東京", "中山", "中京", "京都", "阪神", "小倉"
-            ],
-            "地方競馬": [
-                "帯広", "門別", "盛岡", "水沢", "浦和", "船橋", "大井", "川崎", "名古屋", "笠松", "園田", "姫路", "高知", "佐賀"
-            ],
-            "競艇": [
-                "桐生", "戸田", "江戸川", "平和島", "多摩川", "浜名湖", "蒲郡", "常滑", "津", "三国", "びわこ", "住之江", "尼崎", "鳴門", "丸亀", "児島", "宮島", "徳山", "下関", "若松", "芦屋", "福岡", "唐津", "大村"
-            ],
-            "競輪": [
-                "青森", "函館", "いわき平", "弥彦", "前橋", "取手", "宇都宮", "大宮", "西武園", "京王閣", "立川", "松戸", "千葉", "川崎", "平塚", "小田原", "伊東", "静岡", "名古屋", "岐阜", "豊橋", "福井", "奈良", "向日町", "和歌山", "岸和田", "玉野", "広島", "防府", "高松", "小松島", "小倉", "久留米", "武雄", "佐世保", "別府", "熊本"
-            ],
-            "オートレース": [
-                "伊勢崎", "川口", "浜松", "山陽", "飯塚"
-            ],
-            "パチンコ": [],
-            "スロット": [],
-            "ポーカー": [],
-            "麻雀": [],
-            "その他": []
-        };
+    <div class="message" id="message"></div>
 
-        // カテゴリーに応じたクラスの候補データ
-        const classData = {
-            "競馬": [
-                "GⅠ", "GⅡ", "GⅢ", "リステッド", "オープン", "3勝クラス", "2勝クラス", "1勝クラス", "未勝利", "新馬戦"
-            ],
-            "地方競馬": [
-                "GⅠ", "GⅡ", "GⅢ", "オープン", "一般"
-            ],
-            "競艇": [
-                "SG", "GⅠ", "GⅡ", "GⅢ", "一般"
-            ],
-            "競輪": [
-                "SS", "S級1班", "S級2班", "A級1班", "A級2班", "A級3班"
-            ],
-            "オートレース": [
-                "SG", "GⅠ", "GⅡ", "一般"
-            ],
-            "パチンコ": [],
-            "スロット": [],
-            "ポーカー": [],
-            "麻雀": [],
-            "その他": []
-        };
+    <div class="sheet-link">
+      <a href="https://docs.google.com/spreadsheets/d/19EyunJ9qMjBws0Get4oQfKUmd0r8xqEaEBZoM00DhTk/edit?gid=784244783#gid=784244783" target="_blank">スプレッドシートを確認</a>
+    </div>
+  </div>
 
-        // カテゴリーに応じたレース名の候補データ
-        const raceNameData = {
-            "競馬": [
-                "フェブラリーS", "高松宮記念", "大阪杯", "桜花賞", "中山グランドジャンプ", "皐月賞", "天皇賞（春）", "NHKマイルC", "ヴィクトリアマイル", "オークス", "日本ダービー", "安田記念", "宝塚記念", "スプリンターズS", "秋華賞", "菊花賞", "天皇賞（秋）", "エリザベス女王杯", "マイルチャンピオンシップ", "ジャパンC", "チャンピオンズC", "阪神ジュベナイルF", "朝日杯フューチュリティS", "有馬記念", "ホープフルS", "サウジカップ", "ドバイワールドカップ", "ドバイターフ", "ドバイシーマクラシック", "ドバイゴールデンシャヒーン", "香港ヴァーズ", "香港スプリント", "香港マイル", "香港カップ"
-            ],
-            "地方競馬": [
-                "かしわ記念", "帝王賞", "ジャパンダートダービー", "日本テレビ盃", "JBCクラシック", "JBCスプリント", "JBCレディスクラシック", "全日本2歳優駿", "東京大賞典"
-            ],
-            "競艇": [
-                "ボートレースダービー", "チャレンジカップ", "グランプリ", "クラシック", "オールスター", "メモリアル", "クイーンズクライマックス"
-            ],
-            "競輪": [
-                "KEIRINグランプリ", "日本選手権競輪", "高松宮記念杯競輪", "オールスター競輪", "共同通信社杯", "寛仁親王牌・世界選手権競輪", "朝日新聞社杯競輪祭", "競輪祭", "読売新聞社杯全日本選抜競輪"
-            ],
-            "オートレース": [
-                "日本選手権オートレース", "全日本選抜オートレース", "オールスターオートレース", "スーパースター王座決定戦", "SSシリーズ戦"
-            ],
-            "パチンコ": [],
-            "スロット": [],
-            "ポーカー": [],
-            "麻雀": [],
-            "その他": []
-        };
+  <script>
+    var masterData = {};
+    var fieldMap = {
+        'title': 'タイトル',
+        'date': 'Date',
+        'kaisaibi': '開催日',
+        'place': '場名',
+        'raceNo': 'レース番号',
+        'raceName': 'レース名',
+        'class': 'クラス',
+        'baba': '馬場',
+        'distance': '距離',
+        'distanceType': '距離ジャンル', // This is the key in HTML, but the header in sheet is '距離ジャンル'
+        'condition': '条件',
+        'ticket': '券種',
+        'machine': '機種',
+        'type': 'タイプ',
+        'maker': 'メーカー',
+        'participantsCount': '出走数',
+        'betType': '買い方',
+        'firstPlaceSelections': '1着',
+        'secondPlaceSelections': '2着',
+        'thirdPlaceSelections': '3着',
+        'expense': '支出',
+        'income': '収入',
+        'profit': '収支',
+        'memo': 'メモ'
+    };
 
-        // カテゴリーと場名に応じた馬場の候補データ
-        const horseNameData = {
-            "競馬": {
-                "札幌": ["芝", "ダート"], "函館": ["芝", "ダート"], "福島": ["芝", "ダート"], "新潟": ["芝", "ダート"],
-                "東京": ["芝", "ダート"], "中山": ["芝", "ダート"], "中京": ["芝", "ダート"], "京都": ["芝", "ダート"],
-                "阪神": ["芝", "ダート"], "小倉": ["芝", "ダート"]
-            },
-            "地方競馬": {
-                "帯広": ["ダート"], "門別": ["ダート"], "盛岡": ["ダート"], "水沢": ["ダート"],
-                "浦和": ["ダート"], "船橋": ["ダート"], "大井": ["ダート"],
-                "川崎": ["ダート"], "名古屋": ["ダート"], "笠松": ["ダート"], "園田": ["ダート"],
-                "姫路": ["ダート"], "高知": ["ダート"], "佐賀": ["ダート"]
-            },
-            "競艇": {
-                "桐生": ["淡水"], "戸田": ["淡水"], "江戸川": ["海水"], "平和島": ["海水"],
-                "多摩川": ["淡水"], "浜名湖": ["汽水"], "蒲郡": ["海水"], "常滑": ["海水"],
-                "津": ["淡水"], "三国": ["淡水"], "びわこ": ["淡水"], "住之江": ["淡水"],
-                "尼崎": ["淡水"], "鳴門": ["海水"], "丸亀": ["海水"], "児島": ["海水"],
-                "宮島": ["海水"], "徳山": ["海水"], "下関": ["海水"], "若松": ["海水"],
-                "芦屋": ["海水"], "福岡": ["海水"], "唐津": ["海水"], "大村": ["淡水"]
-            },
-            "競輪": {
-                "青森": ["400m"], "函館": ["400m"], "いわき平": ["400m"], "弥彦": ["400m"],
-                "前橋": ["333m"], "取手": ["400m"], "宇都宮": ["500m"], "大宮": ["500m"],
-                "西武園": ["400m"], "京王閣": ["400m"], "立川": ["400m"], "松戸": ["333m"],
-                "千葉": ["333m"], "川崎": ["400m"], "平塚": ["400m"], "小田原": ["333m"],
-                "伊東": ["333m"], "静岡": ["400m"], "名古屋": ["400m"], "岐阜": ["400m"],
-                "" /* 大垣など他の競輪場もここに追加 */ : ["400m", "333m", "500m"] // 例として汎用的なものも
-            },
-            "オートレース": {
-                "伊勢崎": ["走路"], "川口": ["走路"], "浜松": ["走路"], "山陽": ["走路"], "飯塚": ["走路"]
-            },
-            "パチンコ": {}, "スロット": {}, "ポーカー": {}, "麻雀": {}, "その他": {}
-        };
+    // グローバル変数で現在の買い方と軸タイプを保持
+    let currentBetType = '';
+    let currentNageashiAxisType = ''; // '1頭軸' or '2頭軸'
 
-        // 距離に応じた距離ジャンルの候補データ
-        const distanceGenreData = {
-            "Sprint(スプリント)": [1000, 1300], // 1,000m - 1,300m
-            "Mile(マイル)": [1301, 1899], // 1301m - 1899m
-            "Intermediate(インターミディエイト)": [1900, 2100], // 1900m - 2100m
-            "Long(ロング)": [2101, 2700], // 2101m - 2700m
-            "Extended(エクステンデッド)": [2701] // 2701m以上
-        };
+    // 点数計算表示要素
+    const totalPointsDisplay = document.getElementById('totalPointsDisplay');
+
+    // 枠番の色定義 (より優しい色合いに調整)
+    const wakubanColors = {
+        1: '#E0E0E0', // 白 (少しグレーがかった白)
+        2: '#4A4A4A', // 黒 (濃いグレー)
+        3: '#FF7F7F', // 赤 (淡い赤)
+        4: '#7F7FFF', // 青 (淡い青)
+        5: '#FFFF7F', // 黄 (淡い黄)
+        6: '#7FFF7F', // 緑 (淡い緑)
+        7: '#FFC07F', // 橙 (淡いオレンジ)
+        8: '#FFB0E0'  // 桃 (淡いピンク)
+    };
+
+    /**
+     * 馬番と出走頭数に基づいて枠番を計算する関数
+     * 「番号のカラー設定ルール.txt」のロジックを実装
+     * @param {number} umaban - 馬番 (1から始まる)
+     * @param {number} participantsCount - 出走頭数
+     * @returns {number|null} 枠番 (1-8) または null (エラーの場合)
+     */
+    function getWakuban(umaban, participantsCount) {
+        if (umaban < 1 || umaban > participantsCount || participantsCount < 1) {
+            return null; // 無効な入力
+        }
+
+        // 8頭立て以下の場合、馬番がそのまま枠番になる (テキストの「8頭立て」ルール)
+        // 7頭立て以下は枠連が発売されないことが多いが、ここでは便宜上1対1とする
+        if (participantsCount <= 8) {
+            return umaban;
+        }
+
+        // 9頭立て以上の場合、「外枠から詰める原則」を適用
+        const wakubanHorses = Array(9).fill(0); // wakubanHorses[0]は未使用、インデックス1-8が枠番
+        const baseHorsesPerWakuban = Math.floor(participantsCount / 8);
+        let extraHorses = participantsCount % 8;
+
+        // まず、全ての枠に基本頭数を割り当てる
+        for (let w = 1; w <= 8; w++) {
+            wakubanHorses[w] = baseHorsesPerWakuban;
+        }
+
+        // 余った馬を外枠から順に1頭ずつ追加する
+        for (let w = 8; w >= 1 && extraHorses > 0; w--) {
+            wakubanHorses[w]++;
+            extraHorses--;
+        }
+
+        // 指定された馬番がどの枠番に属するかを判定
+        let currentUmabanCount = 0;
+        for (let w = 1; w <= 8; w++) {
+            currentUmabanCount += wakubanHorses[w];
+            if (umaban <= currentUmabanCount) {
+                return w;
+            }
+        }
+        return null; // ここには到達しないはず
+    }
+
+    /**
+     * メッセージを表示する関数
+     * @param {string} text - 表示するメッセージテキスト
+     * @param {string} type - メッセージの種類 (success, error, info)
+     */
+    function showMessage(text, type) {
+      var messageDiv = document.getElementById("message");
+      messageDiv.textContent = text;
+      messageDiv.className = `message show ${type}`;
+      setTimeout(() => {
+        messageDiv.className = `message`;
+      }, 5000);
+    }
+
+    /**
+     * セレクトボックスのオプションを動的に生成する関数
+     * @param {string} selectId - セレクトボックスのID
+     * @param {Array<Object>} data - オプションのデータ配列
+     * @param {string} defaultValue - デフォルトオプションのテキスト
+     */
+    function populateSelect(selectId, data, defaultValue = "") {
+      var selectElement = document.getElementById(selectId);
+      selectElement.innerHTML = '';
+      var defaultOption = document.createElement('option');
+      defaultOption.value = "";
+      defaultOption.textContent = defaultValue;
+      selectElement.appendChild(defaultOption);
+      if (data && Array.isArray(data)) {
+        data.forEach(item => {
+          var option = document.createElement('option');
+          if (selectId === 'place' || selectId === 'machine' || selectId === 'ticket') { // ticketもnameプロパティを持つ
+              option.value = item.name;
+              option.textContent = item.name;
+          } else if (selectId === 'kaisaibi' || selectId === 'distance' || selectId === 'raceNo' ||
+                     selectId === 'category' || selectId === 'class' || selectId === 'condition' ||
+                     selectId === 'baba' || selectId === 'type' || selectId === 'maker' ||
+                     selectId === 'participantsCount') {
+              option.value = item.value;
+              option.textContent = item.value;
+          }
+          selectElement.appendChild(option);
+        });
+        // 選択肢が一つしかない場合は自動選択
+        if (data.length === 1) {
+            if (selectId === 'place' || selectId === 'machine' || selectId === 'ticket') { // ticketもnameプロパティを持つ
+                selectElement.value = data[0].name;
+            } else {
+                selectElement.value = data[0].value;
+            }
+        } else {
+            selectElement.value = "";
+        }
+      } else {
+        console.warn(`Warning: populateSelect received invalid data for ${selectId}:`, data);
+      }
+    }
+
+    /**
+     * カテゴリー選択に基づいて関連するセレクトボックスのオプションを更新する関数
+     * @param {string} selectedCategory - 選択されたカテゴリー
+     */
+    function updateDependentSelects(selectedCategory) {
+        var selectedPlace = document.getElementById('place').value;
+        var selectedMachine = document.getElementById('machine').value;
+
+        var filteredPlaces = selectedCategory ?
+        masterData.place.filter(item => item.category === selectedCategory) : [];
+        populateSelect('place', filteredPlaces, '場名を選択');
+        if (selectedPlace && filteredPlaces.some(item => item.name === selectedPlace)) {
+            document.getElementById('place').value = selectedPlace;
+        } else {
+            document.getElementById('place').value = '';
+        }
+
+        var filteredClasses = selectedCategory ?
+        masterData.class.filter(item => item.category === selectedCategory) : [];
+        populateSelect('class', filteredClasses, 'クラスを選択');
+        if (document.getElementById('class').value !== "" && !filteredClasses.some(item => item.value === document.getElementById('class').value)) {
+            document.getElementById('class').value = '';
+        }
+
+        var filteredConditions = selectedCategory ?
+        masterData.condition.filter(item => item.category === selectedCategory) : [];
+        populateSelect('condition', filteredConditions, '条件を選択');
+        if (document.getElementById('condition').value !== "" && !filteredConditions.some(item => item.value === document.getElementById('condition').value)) {
+            document.getElementById('condition').value = '';
+        }
+
+        var filteredBabas = selectedCategory && selectedPlace ?
+        masterData.baba.filter(item => item.category === selectedCategory && item.place === selectedPlace) : [];
+        populateSelect('baba', filteredBabas, '馬場を選択');
+        if (document.getElementById('baba').value !== "" && !filteredBabas.some(item => item.value === document.getElementById('baba').value)) {
+            document.getElementById('baba').value = '';
+        }
+
+        var filteredMachines = selectedCategory ?
+        masterData.machine.filter(item => item.category === selectedCategory) : [];
+        populateSelect('machine', filteredMachines, '機種を選択');
+        if (selectedMachine && filteredMachines.some(item => item.name === selectedMachine)) {
+            document.getElementById('machine').value = selectedMachine;
+        } else {
+            document.getElementById('machine').value = '';
+        }
+
+        var filteredTypes = document.getElementById('machine').value ?
+        masterData.type.filter(item => item.machine === document.getElementById('machine').value) : [];
+        populateSelect('type', filteredTypes, 'タイプを選択');
+        if (document.getElementById('type').value !== "" && !filteredTypes.some(item => item.value === document.getElementById('type').value)) {
+            document.getElementById('type').value = '';
+        }
+
+        var filteredMakers = document.getElementById('machine').value ?
+        masterData.maker.filter(item => item.machine === selectedMachine) : [];
+        populateSelect('maker', filteredMakers, 'メーカーを選択');
+        if (document.getElementById('maker').value !== "" && !filteredMakers.some(item => item.value === document.getElementById('maker').value)) {
+            document.getElementById('maker').value = '';
+        }
+
+        var filteredTickets = selectedCategory ?
+        masterData.ticket.filter(item => item.category === selectedCategory) : [];
+        populateSelect('ticket', filteredTickets, '券種を選択');
+        if (document.getElementById('ticket').value !== "" && !filteredTickets.some(item => item.name === document.getElementById('ticket').value)) {
+            document.getElementById('ticket').value = '';
+        }
         
-        // カテゴリーに応じた条件の候補データ
-        const conditionData = {
-            "競馬": [
-                "2歳牡・牝", "2歳牝", "3歳牡・牝", "3歳牝", "3歳以上", "3歳以上牝", "4歳以上", "4歳以上牝", "ハンデ戦" // 女子戦を除外
-            ],
-            "地方競馬": [
-                "GⅠ", "GⅡ", "GⅢ", "オープン", "一般"
-            ],
-            "競艇": [
-                "ルーキーシリーズ", "マスターズ", "ドリーム戦", "準優勝戦", "優勝戦", "準優勝戦"
-            ],
-            "競輪": [
-                "S級", "A級", "準決勝戦", "ガールズ", "チャレンジ", "決勝戦", "ミッドナイト"
-            ],
-            "オートレース": [],
-            "パチンコ": [],
-            "スロット": [],
-            "ポーカー": [],
-            "麻雀": [],
-            "その他": []
+        // カテゴリーに応じた出走数のフィルタリング
+        let filteredParticipantsCount = [];
+        const allParticipantsCounts = masterData.participantsCount; // 全ての出走数オプション
+
+        if (selectedCategory === '競馬') {
+            filteredParticipantsCount = allParticipantsCounts.filter(item => {
+                const count = parseInt(item.value);
+                return count >= 5 && count <= 18;
+            });
+        } else if (selectedCategory === '競艇') {
+            filteredParticipantsCount = allParticipantsCounts.filter(item => parseInt(item.value) === 6);
+        } else if (selectedCategory === '競輪') {
+            filteredParticipantsCount = allParticipantsCounts.filter(item => {
+                const count = parseInt(item.value);
+                return count >= 6 && count <= 9;
+            });
+        } else if (selectedCategory === 'オートレース') {
+            filteredParticipantsCount = allParticipantsCounts.filter(item => parseInt(item.value) === 8);
+        } else {
+            // カテゴリーが選択されていない、またはルールがない場合は全て表示
+            filteredParticipantsCount = allParticipantsCounts;
+        }
+
+        populateSelect('participantsCount', filteredParticipantsCount, '出走数を選択');
+
+        // 現在選択されている出走数が新しいフィルターで無効になった場合、リセットする
+        const currentParticipantsCount = document.getElementById('participantsCount').value;
+        if (currentParticipantsCount && !filteredParticipantsCount.some(item => item.value === currentParticipantsCount)) {
+            document.getElementById('participantsCount').value = '';
+        }
+        
+        // 選択肢が1つしかない場合は自動設定
+        if (filteredParticipantsCount.length === 1) {
+            document.getElementById('participantsCount').value = filteredParticipantsCount[0].value;
+        }
+
+        // '出走数'が変更されたら番号ボタンを再生成
+        document.getElementById('participantsCount').dispatchEvent(new Event('change'));
+    }
+
+    /**
+     * カテゴリー選択に基づいてフォームフィールドの表示/非表示を更新する関数
+     * @param {string} selectedCategory - 選択されたカテゴリー
+     */
+    function updateFieldVisibility(selectedCategory) {
+        console.log('updateFieldVisibility called with category:', selectedCategory);
+        // 全てのコンテナから表示クラスを削除し、デフォルト（非表示）に戻す
+        for (let key in fieldMap) {
+            if (key === 'category') continue;
+            const containerId = ['betType'].includes(key) ? 'betType-buttons-container' : ['firstPlaceSelections', 'secondPlaceSelections', 'thirdPlaceSelections'].includes(key) ? 'placeSelections-container' : `${key}-container`;
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.classList.remove('show-block', 'show-flex');
+            }
+        }
+        // 「決定」「クリア」ボタンのコンテナも初期化
+        const decisionClearButtonsContainer = document.getElementById('decision-clear-buttons-container');
+        if (decisionClearButtonsContainer) {
+            decisionClearButtonsContainer.classList.remove('show-block');
+        }
+
+        // 流し/マルチの軸選択ボタンコンテナも非表示にする
+        document.getElementById('nageashi-sub-buttons-container').style.display = 'none';
+
+        if (!selectedCategory || !masterData.visibilityRules[selectedCategory]) {
+            console.log('No rules found for category or category not selected. Hiding all non-category fields.');
+            return;
+        }
+
+        const rules = masterData.visibilityRules[selectedCategory];
+        console.log('Rules for selectedCategory:', rules);
+        let isPlaceSelectionsVisible = false; // Track if placeSelections-container is visible
+
+        for (let key in fieldMap) {
+            if (key === 'category') continue;
+            const containerId = ['betType'].includes(key) ? 'betType-buttons-container' : ['firstPlaceSelections', 'secondPlaceSelections', 'thirdPlaceSelections'].includes(key) ? 'placeSelections-container' : `${key}-container`;
+            const container = document.getElementById(containerId);
+
+            console.log(`Checking field: ${key}, Container ID: ${containerId}, Container found: ${!!container}, Rule value: ${rules[key]}`);
+
+            // If the rule is explicitly true, show the container.
+            // Also, handle cases where 'betType' and 'placeSelections' might need to be shown
+            // even if their individual '1着', '2着', '3着', '買い方' rules are not explicitly true
+            // but are implied by other selections (e.g., if a category is selected).
+            if (container && rules[key] === true) {
+                if (['expense-container', 'income-container', 'memo-container', 'betType-buttons-container', 'placeSelections-container'].includes(containerId)) {
+                    container.classList.add('show-block');
+                    if (containerId === 'placeSelections-container') {
+                        isPlaceSelectionsVisible = true;
+                    }
+                } else {
+                    container.classList.add('show-flex');
+                }
+                console.log(`Field ${key} is set to visible.`);
+            } else {
+                console.log(`Field ${key} is set to hidden or rule is false/undefined.`);
+            }
+        }
+
+        // Explicitly handle decision-clear-buttons-container visibility based on placeSelections-container
+        if (decisionClearButtonsContainer) {
+            if (isPlaceSelectionsVisible) {
+                decisionClearButtonsContainer.classList.add('show-block');
+                console.log('Decision/Clear buttons container set to visible.');
+            } else {
+                decisionClearButtonsContainer.classList.remove('show-block');
+                console.log('Decision/Clear buttons container set to hidden.');
+            }
+        }
+    }
+
+    /**
+     * カテゴリー選択に基づいてフォームフィールドの入力必須設定を更新する関数
+     * @param {string} selectedCategory - 選択されたカテゴリー
+     */
+    function updateFieldRequired(selectedCategory) {
+        for (let key in fieldMap) {
+            if (['betType', 'firstPlaceSelections', 'secondPlaceSelections', 'thirdPlaceSelections'].includes(key)) {
+                const element = document.getElementById(key);
+                if (element) element.removeAttribute('required'); // 念のため
+                continue;
+            }
+            const element = document.getElementById(key);
+            if (element) {
+                element.removeAttribute('required');
+                const label = document.querySelector(`label[for="${key}"]`);
+                if (label) {
+                    label.classList.remove('required-label'); // 必須マークを一旦削除
+                }
+            }
+        }
+
+        if (!selectedCategory || !masterData.requiredRules[selectedCategory]) {
+            return;
+        }
+
+        const rules = masterData.requiredRules[selectedCategory];
+        for (let key in fieldMap) {
+            const element = document.getElementById(key);
+            if (['betType', 'firstPlaceSelections', 'secondPlaceSelections', 'thirdPlaceSelections'].includes(key)) {
+                // カスタムバリデーションが必要な項目
+                continue;
+            }
+            if (element && rules[key] === true) {
+                element.setAttribute('required', 'true');
+                const label = document.querySelector(`label[for="${key}"]`);
+                if (label) {
+                    label.classList.add('required-label'); // 必須マークを追加
+                }
+            }
+        }
+    }
+
+    // 各着順の選択された番号を格納する配列
+    let firstPlaceSelections = [];
+    let secondPlaceSelections = [];
+    let thirdPlaceSelections = [];
+
+    /**
+     * 出走数に基づいて番号選択ボタンを生成する関数
+     * @param {number} participantsCount - 出走数
+     */
+    function generateNumberButtons(participantsCount) {
+        const gridContainer = document.getElementById('numberSelectionGrid');
+        gridContainer.innerHTML = ''; // クリア
+
+        if (isNaN(participantsCount) || participantsCount <= 0) {
+            return;
+        }
+
+        const selectedCategory = document.getElementById('category').value; // 現在のカテゴリーを取得
+
+        for (let i = 1; i <= participantsCount; i++) {
+            const row = document.createElement('div');
+            row.className = 'grid-row';
+
+            // 番号セル
+            const numberCell = document.createElement('div');
+            numberCell.className = 'grid-cell grid-number';
+            numberCell.textContent = i;
+            
+            let backgroundColor = '';
+            let textColor = '';
+
+            // 競輪で9番の場合、紫色を適用
+            if (selectedCategory === '競輪' && i === 9) {
+                backgroundColor = '#800080'; // 紫色
+                textColor = '#FFFFFF'; // 白文字
+            } else {
+                // 枠番の色を適用 (既存のロジック)
+                const wakuban = getWakuban(i, participantsCount);
+                if (wakuban !== null) {
+                    backgroundColor = wakubanColors[wakuban];
+                    if (wakubanColors[wakuban] === '#4A4A4A') { // 調整された黒色
+                        textColor = '#FFFFFF';
+                    } else {
+                        textColor = '#333333'; // デフォルトの文字色
+                    }
+                } else {
+                    // 枠番が取得できない場合はデフォルト色
+                    backgroundColor = ''; /* CSSのデフォルトに戻す */
+                    textColor = '#ddd'; /* CSSのデフォルトに戻す */
+                }
+            }
+
+            numberCell.style.backgroundColor = backgroundColor;
+            numberCell.style.color = textColor;
+            row.appendChild(numberCell);
+
+            // 1着ボタン
+            const firstPlaceCell = document.createElement('div');
+            firstPlaceCell.className = 'grid-cell';
+            const firstPlaceButton = document.createElement('button');
+            firstPlaceButton.type = 'button';
+            firstPlaceButton.className = 'selection-button';
+            firstPlaceButton.textContent = i; // 数字に変更
+            firstPlaceButton.dataset.number = i;
+            firstPlaceButton.dataset.place = 'first';
+            firstPlaceButton.onclick = updateNumberSelection;
+            firstPlaceCell.appendChild(firstPlaceButton);
+            row.appendChild(firstPlaceCell);
+
+            // 2着ボタン
+            const secondPlaceCell = document.createElement('div');
+            secondPlaceCell.className = 'grid-cell';
+            const secondPlaceButton = document.createElement('button');
+            secondPlaceButton.type = 'button';
+            secondPlaceButton.className = 'selection-button';
+            secondPlaceButton.textContent = i; // 数字に変更
+            secondPlaceButton.dataset.number = i;
+            secondPlaceButton.dataset.place = 'second';
+            secondPlaceButton.onclick = updateNumberSelection;
+            secondPlaceCell.appendChild(secondPlaceButton);
+            row.appendChild(secondPlaceCell);
+
+            // 3着ボタン
+            const thirdPlaceCell = document.createElement('div');
+            thirdPlaceCell.className = 'grid-cell';
+            const thirdPlaceButton = document.createElement('button');
+            thirdPlaceButton.type = 'button';
+            thirdPlaceButton.className = 'selection-button';
+            thirdPlaceButton.textContent = i; // 数字に変更
+            thirdPlaceButton.dataset.number = i;
+            thirdPlaceButton.dataset.place = 'third';
+            thirdPlaceButton.onclick = updateNumberSelection;
+            thirdPlaceCell.appendChild(thirdPlaceButton);
+            row.appendChild(thirdPlaceCell);
+
+            gridContainer.appendChild(row);
+        }
+
+        // 「全」ボタンの行
+        const allButtonRow = document.createElement('div');
+        allButtonRow.className = 'grid-row';
+        allButtonRow.innerHTML = `
+            <div class="grid-cell grid-number"></div>
+            <div class="grid-cell"><button type="button" class="all-selection-button" data-place="first">全</button></div>
+            <div class="grid-cell"><button type="button" class="all-selection-button" data-place="second">全</button></div>
+            <div class="grid-cell"><button type="button" class="all-selection-button" data-place="third">全</button></div>
+        `;
+        gridContainer.appendChild(allButtonRow);
+
+        // 「全」ボタンのイベントリスナーを設定
+        document.querySelectorAll('.all-selection-button').forEach(button => {
+            button.onclick = function() {
+                const place = this.dataset.place;
+                const allNumbers = Array.from({ length: participantsCount }, (_, i) => i + 1);
+                
+                let targetArray;
+                let targetInputId;
+                if (place === 'first') {
+                    targetArray = firstPlaceSelections;
+                    targetInputId = 'firstPlaceSelections';
+                } else if (place === 'second') {
+                    targetInputId = 'secondPlaceSelections';
+                    targetArray = secondPlaceSelections;
+                } else if (place === 'third') {
+                    targetInputId = 'thirdPlaceSelections';
+                    targetArray = thirdPlaceSelections;
+                }
+
+                // すでに全て選択されている場合はクリア、そうでない場合は全て選択
+                const isAllSelected = (targetArray.length === participantsCount) &&
+                                     targetArray.every(num => allNumbers.includes(num));
+
+                if (isAllSelected) {
+                    targetArray.length = 0; // Clear array
+                    this.classList.remove('selected-number');
+                } else {
+                    targetArray.length = 0;
+                    targetArray.push(...allNumbers); // Select all
+                    this.classList.add('selected-number');
+                }
+                document.getElementById(targetInputId).value = targetArray.join(',');
+                
+                // 各番号ボタンの選択状態も更新
+                const placeButtons = gridContainer.querySelectorAll(`button[data-place="${place}"][data-number]`);
+                placeButtons.forEach(btn => {
+                    const num = parseInt(btn.dataset.number);
+                    if (targetArray.includes(num)) {
+                        btn.classList.add('selected-number');
+                    } else {
+                        btn.classList.remove('selected-number');
+                    }
+                });
+
+                calculatePoints(); // 点数計算をトリガー
+            };
+        });
+
+        // 既存の選択を復元
+        updateSelectedNumberButtons('first', firstPlaceSelections);
+        updateSelectedNumberButtons('second', secondPlaceSelections);
+        updateSelectedNumberButtons('third', thirdPlaceSelections);
+
+        // 現在の買い方に基づいてUI状態を更新
+        updateUIForBetType(currentBetType, currentNageashiAxisType);
+    }
+
+    /**
+     * 指定された着順の番号ボタンの選択状態を更新する関数
+     * @param {string} place - 着順 ('first', 'second', 'third')
+     * @param {Array<number>} selectionsArray - 選択された番号の配列
+     */
+    function updateSelectedNumberButtons(place, selectionsArray) {
+        const gridContainer = document.getElementById('numberSelectionGrid');
+        const buttons = gridContainer.querySelectorAll(`button[data-place="${place}"]`);
+        const allButton = gridContainer.querySelector(`.all-selection-button[data-place="${place}"]`);
+
+        buttons.forEach(button => {
+            const number = parseInt(button.dataset.number);
+            if (selectionsArray.includes(number)) {
+                button.classList.add('selected-number');
+            } else {
+                button.classList.remove('selected-number');
+            }
+        });
+
+        // 「全」ボタンの状態を更新
+        const participantsCount = parseInt(document.getElementById('participantsCount').value);
+        if (selectionsArray.length > 0 && selectionsArray.length === participantsCount) {
+             const allNumbers = Array.from({ length: participantsCount }, (_, i) => i + 1);
+             const isAllSelected = selectionsArray.every(num => allNumbers.includes(num));
+             if(isAllSelected) {
+                allButton.classList.add('selected-number');
+             } else {
+                allButton.classList.remove('selected-number');
+             }
+        } else {
+            allButton.classList.remove('selected-number');
+        }
+    }
+
+
+    /**
+     * 番号選択ボタンがクリックされたときに選択状態を更新する関数
+     * @param {Event} event - クリックイベント
+     */
+    function updateNumberSelection(event) {
+        const button = event.target;
+        const number = parseInt(button.dataset.number);
+        const place = button.dataset.place;
+
+        console.log('--- updateNumberSelection Debug Start ---');
+        console.log('Event target:', button);
+        console.log('button.dataset:', button.dataset);
+        console.log('Extracted place:', place);
+        console.log('Extracted number:', number);
+        console.log('firstPlaceSelections (global):', firstPlaceSelections);
+        console.log('secondPlaceSelections (global):', secondPlaceSelections);
+        console.log('thirdPlaceSelections (global):', thirdPlaceSelections);
+
+
+        // Defensive check for 'place' value
+        if (!['first', 'second', 'third'].includes(place)) {
+            console.error('ERROR: Invalid or missing data-place attribute on button. Stopping execution.', {button, place, number});
+            return; // Stop execution to prevent TypeError
+        }
+
+        let currentSelections;
+        let currentInputId;
+
+        if (place === 'first') {
+            currentSelections = firstPlaceSelections;
+            currentInputId = 'firstPlaceSelections';
+        } else if (place === 'second') {
+            currentSelections = secondPlaceSelections;
+            currentInputId = 'secondPlaceSelections';
+        } else { // 'third'
+            currentSelections = thirdPlaceSelections;
+            currentInputId = 'thirdPlaceSelections';
+        }
+
+        console.log('currentSelections (targetArray for this click):', currentSelections);
+        // Add or remove number
+        const index = currentSelections.indexOf(number);
+        if (index > -1) {
+            currentSelections.splice(index, 1);
+            button.classList.remove('selected-number');
+        } else {
+            // "1頭軸流し"や"マルチ"の1軸の場合、「1着」に複数選択をさせない
+            if ((currentBetType === '流し' || currentBetType === 'マルチ') && currentNageashiAxisType === '1頭軸' && place === 'first') {
+                if (currentSelections.length > 0) {
+                    // 既に選択されている数字がある場合、それを解除して新しい数字を選択
+                    const prevSelectedNum = currentSelections[0];
+                    const prevButton = document.querySelector(`button[data-number="${prevSelectedNum}"][data-place="${place}"]`);
+                    if (prevButton) prevButton.classList.remove('selected-number');
+                    currentSelections.length = 0; // 配列をクリア
+                }
+            }
+            // "2頭軸流し"や"マルチ"の2軸の場合、「1着」と「2着」に複数選択をさせない
+            if ((currentBetType === '流し' || currentBetType === 'マルチ') && currentNageashiAxisType === '2頭軸' && (place === 'first' || place === 'second')) {
+                if (currentSelections.length > 0) {
+                    // 既に選択されている数字がある場合、それを解除して新しい数字を選択
+                    const prevSelectedNum = currentSelections[0];
+                    const prevButton = document.querySelector(`button[data-number="${prevSelectedNum}"][data-place="${place}"]`);
+                    if (prevButton) prevButton.classList.remove('selected-number');
+                    currentSelections.length = 0; // 配列をクリア
+                }
+            }
+
+            currentSelections.push(number);
+            button.classList.add('selected-number');
+        }
+
+        document.getElementById(currentInputId).value = currentSelections.join(',');
+        updateSelectedNumberButtons(place, currentSelections); // 「全」ボタンの状態を更新
+        calculatePoints(); // 点数計算をトリガー
+        console.log('--- updateNumberSelection Debug End ---');
+    }
+
+    /**
+     * 番号選択をクリアする関数
+     */
+    function clearPlaceSelections() {
+        firstPlaceSelections = [];
+        secondPlaceSelections = [];
+        thirdPlaceSelections = [];
+        document.getElementById('firstPlaceSelections').value = '';
+        document.getElementById('secondPlaceSelections').value = '';
+        document.getElementById('thirdPlaceSelections').value = '';
+
+        const allButtons = document.querySelectorAll('#numberSelectionGrid button');
+        allButtons.forEach(button => {
+            button.classList.remove('selected-number');
+            // クリア時に元の色に戻す（「選」ボタンはデフォルトのグレー）
+            button.style.backgroundColor = ''; // CSSで設定されたデフォルト色に戻す
+            button.style.color = ''; // CSSで設定されたデフォルト色に戻す
+        });
+        // 番号セルをクリア時に元の色に戻す
+        document.querySelectorAll('.grid-number').forEach(numberCell => {
+            const umaban = parseInt(numberCell.textContent);
+            const participantsCount = parseInt(document.getElementById('participantsCount').value);
+            const selectedCategory = document.getElementById('category').value; // 現在のカテゴリーを取得
+
+            let backgroundColor = '';
+            let textColor = '';
+
+            // 競輪で9番の場合、紫色を適用
+            if (selectedCategory === '競輪' && umaban === 9) {
+                backgroundColor = '#800080'; // 紫色
+                textColor = '#FFFFFF'; // 白文字
+            } else {
+                const wakuban = getWakuban(umaban, participantsCount);
+                if (wakuban !== null) {
+                    backgroundColor = wakubanColors[wakuban];
+                    if (wakubanColors[wakuban] === '#4A4A4A') { // 調整された黒色
+                        textColor = '#FFFFFF';
+                    } else {
+                        textColor = '#333333';
+                    }
+                } else {
+                    backgroundColor = ''; /* CSSのデフォルトに戻す */
+                    textColor = '#ddd'; /* CSSのデフォルトに戻す */
+                }
+            }
+            numberCell.style.backgroundColor = backgroundColor;
+            numberCell.style.color = textColor;
+        });
+
+        document.querySelectorAll('.all-selection-button').forEach(button => {
+            button.classList.remove('selected-number');
+        });
+
+        // 点数表示をリセット
+        totalPointsDisplay.textContent = '0';
+        
+        // 買い方選択もリセット
+        document.getElementById('betType').value = '';
+        currentBetType = '';
+        currentNageashiAxisType = '';
+        document.querySelectorAll('#betType-buttons-container button').forEach(btn => btn.classList.remove('selected'));
+        document.getElementById('nageashi-sub-buttons-container').style.display = 'none';
+        document.querySelectorAll('#nageashi-sub-buttons-container button').forEach(btn => btn.classList.remove('selected'));
+
+        // UI状態をリセット
+        updateUIForBetType('', ''); // Clear all UI states
+    }
+
+    // 組み合わせ (Combination) を計算するヘルパー関数 C(n, k)
+    function combinations(n, k) {
+        if (k < 0 || k > n) {
+            return 0;
+        }
+        if (k === 0 || k === n) {
+            return 1;
+        }
+        if (k > n / 2) {
+            k = n - k;
+        }
+        let res = 1;
+        for (let i = 1; i <= k; i++) {
+            res = res * (n - i + 1) / i;
+        }
+        return Math.round(res); // 浮動小数点誤差を考慮
+    }
+
+    // 順列 (Permutation) を計算するヘルパー関数 P(n, k)
+    function permutations(n, k) {
+        if (k < 0 || k > n) {
+            return 0;
+        }
+        let res = 1;
+        for (let i = 0; i < k; i++) {
+            res *= (n - i);
+        }
+        return res;
+    }
+
+    // 配列の全ての順列を生成するヘルパー関数
+    function generatePermutationsOfArray(arr) {
+        const result = [];
+        function permute(current, remaining) {
+            if (remaining.length === 0) {
+                result.push(current);
+                return;
+            }
+            for (let i = 0; i < remaining.length; i++) {
+                const next = current.concat(remaining[i]);
+                const newRemaining = remaining.slice(0, i).concat(remaining.slice(i + 1));
+                permute(next, newRemaining);
+            }
+        }
+        permute([], arr);
+        return result;
+    }
+
+    // 配列からk個の組み合わせを生成するヘルパー関数
+    function generateCombinationsOfArray(arr, k) {
+        const result = [];
+        function combine(start, current) {
+            if (current.length === k) {
+                result.push(current);
+                return;
+            }
+            for (let i = start; i < arr.length; i++) {
+                combine(i + 1, current.concat(arr[i]));
+            }
+        }
+        combine(0, []);
+        return result;
+    }
+
+    /**
+     * 点数を計算して表示を更新する関数
+     */
+    function calculatePoints() {
+        const ticket = document.getElementById('ticket').value;
+        const betType = currentBetType;
+        const nageashiAxisType = currentNageashiAxisType;
+
+        const firstCount = firstPlaceSelections.length;
+        const secondCount = secondPlaceSelections.length;
+        const thirdCount = thirdPlaceSelections.length;
+        const participantsCount = parseInt(document.getElementById('participantsCount').value) || 0;
+
+        // 選択された数字を昇順にソート
+        const f1 = [...firstPlaceSelections].sort((a, b) => a - b);
+        const f2 = [...secondPlaceSelections].sort((a, b) => a - b);
+        const f3 = [...thirdPlaceSelections].sort((a, b) => a - b);
+
+
+        let points = 0;
+
+        if (!ticket || !betType) {
+            totalPointsDisplay.textContent = '0';
+            return;
+        }
+
+        // Helper to get unique bracket numbers from selected horse numbers
+        const getUniqueWakubans = (horseSelections) => {
+            const wakubans = new Set();
+            horseSelections.forEach(horseNum => {
+                const wakuban = getWakuban(horseNum, participantsCount);
+                if (wakuban !== null) {
+                    wakubans.add(wakuban);
+                }
+            });
+            return Array.from(wakubans);
         };
 
-        // 機種詳細データ (機種からタイプとメーカーを導出)
-        const deviceTypeDetails = {
-            "かぐや様は告らせたい": { type: "AT", manufacturer: "SANKYO" },
-            "モンキーターンV": { type: "AT", manufacturer: "山佐" },
-            "SアイムジャグラーEX": { type: "A", manufacturer: "北電子" },
-            "革命機ヴァルヴレイヴ": { type: "AT", manufacturer: "SANKYO" },
-            "スマスロ ゴールデンカムイ": { type: "AT", manufacturer: "Sammy" },
-            "ジャグラーガールズSS": { type: "A", manufacturer: "北電子" },
-            "ファンキージャグラー2": { type: "A", manufacturer: "北電子" },
-            "Re:ゼロから始める異世界生活 season2": { type: "AT", manufacturer: "大都技研" }
+        switch (betType) {
+            case '通常':
+                let normalPointsSet = new Set();
+                if (ticket === '単勝' || ticket === '複勝') {
+                    points = firstCount;
+                } else if (ticket === '馬連' || ticket === 'ワイド' || ticket === '2連複') {
+                    // 1着、2着の選択をまとめてユニークな数字の組み合わせを計算
+                    const combinedSelections = [...new Set([...f1, ...f2])];
+                    points = combinations(combinedSelections.length, 2);
+                } else if (ticket === '馬単' || ticket === '2連単') {
+                    // 1着と2着の順列を計算
+                    for (const p1 of f1) {
+                        for (const p2 of f2) {
+                            if (p1 !== p2) {
+                                normalPointsSet.add(`${p1}-${p2}`);
+                            }
+                        }
+                    }
+                    points = normalPointsSet.size;
+                } else if (ticket === '3連複') {
+                    // 1着、2着、3着の選択をまとめてユニークな数字の組み合わせを計算
+                    const combinedSelections = [...new Set([...f1, ...f2, ...f3])];
+                    points = combinations(combinedSelections.length, 3);
+                } else if (ticket === '3連単') {
+                    // 1着、2着、3着の順列を計算
+                    for (const p1 of f1) {
+                        for (const p2 of f2) {
+                            if (p1 === p2) continue; // 1着と2着が同じ場合はスキップ
+                            for (const p3 of f3) {
+                                if (p3 === p1 || p3 === p2) continue; // 3着が1着または2着と同じ場合はスキップ
+                                normalPointsSet.add(`${p1}-${p2}-${p3}`);
+                            }
+                        }
+                    }
+                    points = normalPointsSet.size;
+                } else if (ticket === '枠連') {
+                    // 1着、2着の選択馬からユニークな枠番を取得し、枠連の計算
+                    const combinedWakubans = getUniqueWakubans([...f1, ...f2]);
+                    points = combinations(combinedWakubans.length, 2) + combinedWakubans.length;
+                } else if (ticket === '枠単') {
+                    // 1着、2着の選択馬からユニークな枠番を取得し、枠単の計算
+                    for (const p1 of f1) {
+                        const w1 = getWakuban(p1, participantsCount);
+                        if (w1 === null) continue;
+                        for (const p2 of f2) {
+                            const w2 = getWakuban(p2, participantsCount);
+                            if (w2 === null || w1 === w2) continue; // ゾロ目は除外
+                            normalPointsSet.add(`${w1}-${w2}`);
+                        }
+                    }
+                    points = normalPointsSet.size;
+                }
+                break;
+
+            case 'BOX':
+                switch (ticket) {
+                    case '馬連':
+                    case 'ワイド':
+                    case '2連複':
+                        points = combinations(firstCount, 2);
+                        break;
+                    case '馬単':
+                    case '2連単':
+                        points = permutations(firstCount, 2);
+                        break;
+                    case '3連複':
+                        points = combinations(firstCount, 3);
+                        break;
+                    case '3連単':
+                        points = permutations(firstCount, 3);
+                        break;
+                    case '枠連':
+                        // 枠連の点数計算（ゾロ目考慮）
+                        const uniqueWakubansForBox = getUniqueWakubans(f1);
+                        // Nは選択した枠の数。N個の枠から2つを選ぶ組み合わせ + N個のゾロ目
+                        points = combinations(uniqueWakubansForBox.length, 2) + uniqueWakubansForBox.length;
+                        break;
+                    case '枠単': // 枠単はゾロ目なし
+                        const uniqueWakubansForBoxTan = getUniqueWakubans(f1);
+                        points = permutations(uniqueWakubansForBoxTan.length, 2);
+                        break;
+                    default:
+                        points = 0;
+                        break;
+                }
+                break;
+
+            case '流し':
+                if (nageashiAxisType === '1頭軸') {
+                    // 軸馬はf1[0]、相手馬はf3
+                    const axis1Count = (firstCount === 1) ? 1 : 0; // 1頭軸なので、1着欄の選択数が1でなければ計算不可
+                    const opponentCount = thirdCount;
+
+                    if (axis1Count === 0 || opponentCount === 0) {
+                        points = 0;
+                        break;
+                    }
+
+                    switch (ticket) {
+                        case '馬連':
+                        case 'ワイド':
+                        case '2連複':
+                            points = opponentCount;
+                            break;
+                        case '馬単':
+                        case '2連単':
+                            points = opponentCount;
+                            break;
+                        case '3連複':
+                            points = combinations(opponentCount, 2);
+                            break;
+                        case '3連単':
+                            points = permutations(opponentCount, 2);
+                            break;
+                        case '枠連': // 枠連 1頭軸流し (軸枠1つ、相手枠m個)
+                            const axisWakuban1 = getWakuban(f1[0], participantsCount);
+                            if (axisWakuban1 === null) { points = 0; break; }
+                            const opponentWakubansFor1Axis = getUniqueWakubans(f3).filter(w => w !== axisWakuban1); // 軸枠と異なる相手枠
+                            points = opponentWakubansFor1Axis.length;
+                            // ゾロ目は通常流しでは考慮しない（軸と相手が同じ枠になるケースは別扱い）
+                            break;
+                        case '枠単': // 枠単 1頭軸流し (軸枠1着固定、相手枠m個)
+                            const axisWakubanTan1 = getWakuban(f1[0], participantsCount);
+                            if (axisWakubanTan1 === null) { points = 0; break; }
+                            const opponentWakubansFor1AxisTan = getUniqueWakubans(f3).filter(w => w !== axisWakubanTan1);
+                            points = opponentWakubansFor1AxisTan.length;
+                            break;
+                        default:
+                            points = 0;
+                            break;
+                    }
+                } else if (nageashiAxisType === '2頭軸') {
+                    // 軸馬はf1[0]とf2[0]、相手馬はf3
+                    const axis1Count = (firstCount === 1) ? 1 : 0;
+                    const axis2Count = (secondCount === 1) ? 1 : 0;
+                    const opponentCount = thirdCount;
+
+                    if (axis1Count === 0 || axis2Count === 0 || opponentCount === 0) {
+                        points = 0;
+                        break;
+                    }
+
+                    if (f1[0] === f2[0]) {
+                        showMessage('2頭軸流しの場合、軸馬は異なる番号を選択してください。', 'error');
+                        points = 0;
+                        break;
+                    }
+
+                    switch (ticket) {
+                        case '馬連':
+                        case 'ワイド':
+                        case '2連複':
+                            // 軸2頭の組み合わせ1点 + 軸1と相手の組み合わせ + 軸2と相手の組み合わせ
+                            const uniquePairs = new Set();
+                            uniquePairs.add([f1[0], f2[0]].sort((a,b)=>a-b).join('-'));
+                            f3.forEach(opp => {
+                                uniquePairs.add([f1[0], opp].sort((a,b)=>a-b).join('-'));
+                                uniquePairs.add([f2[0], opp].sort((a,b)=>a-b).join('-'));
+                            });
+                            points = uniquePairs.size;
+                            break;
+                        case '馬単':
+                        case '2連単':
+                            const uniquePermsHorseTan = new Set();
+                            uniquePermsHorseTan.add(`${f1[0]}-${f2[0]}`);
+                            uniquePermsHorseTan.add(`${f2[0]}-${f1[0]}`);
+                            f3.forEach(opp => {
+                                uniquePermsHorseTan.add(`${f1[0]}-${opp}`);
+                                uniquePermsHorseTan.add(`${opp}-${f1[0]}`);
+                                uniquePermsHorseTan.add(`${f2[0]}-${opp}`);
+                                uniquePermsHorseTan.add(`${opp}-${f2[0]}`);
+                            });
+                            points = uniquePermsHorseTan.size;
+                            break;
+                        case '3連複':
+                            points = opponentCount;
+                            break;
+                        case '3連単':
+                            const uniquePermsSanRentan = new Set();
+                            f3.forEach(opp => {
+                                const arr = [f1[0], f2[0], opp];
+                                generatePermutationsOfArray(arr).forEach(p => {
+                                    if (new Set(p).size === 3) { // 3つの数字が全て異なることを確認
+                                        uniquePermsSanRentan.add(p.join('-'));
+                                    }
+                                });
+                            });
+                            points = uniquePermsSanRentan.size;
+                            break;
+                        case '枠連': // 枠連 2頭軸流し (軸枠2つ、相手枠m個)
+                            const axisWakuban2_1 = getWakuban(f1[0], participantsCount);
+                            const axisWakuban2_2 = getWakuban(f2[0], participantsCount);
+                            if (axisWakuban2_1 === null || axisWakuban2_2 === null || axisWakuban2_1 === axisWakuban2_2) { points = 0; break; }
+                            
+                            const opponentWakubansFor2Axis = getUniqueWakubans(f3).filter(w => w !== axisWakuban2_1 && w !== axisWakuban2_2);
+                            points = opponentWakubansFor2Axis.length; // 軸2つと相手1つの組み合わせ
+                            break;
+                        case '枠単': // 枠単 2頭軸流し
+                            const axisWakubanTan2_1 = getWakuban(f1[0], participantsCount);
+                            const axisWakubanTan2_2 = getWakuban(f2[0], participantsCount);
+                            if (axisWakubanTan2_1 === null || axisWakubanTan2_2 === null || axisWakubanTan2_1 === axisWakubanTan2_2) { points = 0; break; }
+                            const opponentWakubansFor2AxisTan = getUniqueWakubans(f3).filter(w => w !== axisWakubanTan2_1 && w !== axisWakubanTan2_2);
+                            points = opponentWakubansFor2AxisTan.length;
+                            break;
+                        default:
+                            points = 0;
+                            break;
+                    }
+                }
+                break;
+
+            case 'フォーメーション':
+                const formationResults = new Set(); // 重複排除のためSetを使用
+
+                if (ticket === '馬連' || ticket === 'ワイド' || ticket === '2連複') {
+                    // 2連系（順不同）
+                    for (const num1 of f1) {
+                        for (const num2 of f2) {
+                            if (num1 === num2) continue; // 同一番号の組み合わせは除外
+                            const pair = [num1, num2].sort((a, b) => a - b).join('-'); // 順不同なのでソートして文字列化
+                            formationResults.add(pair);
+                        }
+                    }
+                } else if (ticket === '馬単' || ticket === '2連単') {
+                    // 2連系（順序あり）
+                    for (const num1 of f1) {
+                        for (const num2 of f2) {
+                            if (num1 === num2) continue; // 同一番号の組み合わせは除外
+                            formationResults.add(`${num1}-${num2}`);
+                        }
+                    }
+                } else if (ticket === '枠連') {
+                    // 枠連フォーメーション（ゾロ目考慮）
+                    for (const num1 of f1) {
+                        for (const num2 of f2) {
+                            const wakuban1 = getWakuban(num1, participantsCount);
+                            const wakuban2 = getWakuban(num2, participantsCount);
+                            if (wakuban1 === null || wakuban2 === null) continue;
+                            
+                            // ゾロ目を考慮する場合、wakuban1 === wakuban2 も有効な組み合わせ
+                            const sortedPair = [wakuban1, wakuban2].sort((a, b) => a - b).join('-');
+                            formationResults.add(sortedPair);
+                        }
+                    }
+                } else if (ticket === '枠単') {
+                    // 枠単フォーメーション（ゾロ目なし）
+                    for (const num1 of f1) {
+                        for (const num2 of f2) {
+                            const wakuban1 = getWakuban(num1, participantsCount);
+                            const wakuban2 = getWakuban(num2, participantsCount);
+                            if (wakuban1 === null || wakuban2 === null || wakuban1 === wakuban2) continue; // ゾロ目は除外
+                            formationResults.add(`${wakuban1}-${wakuban2}`);
+                        }
+                    }
+                } else if (ticket === '3連複') {
+                    // 3連複（順不同）
+                    for (const num1 of f1) {
+                        for (const num2 of f2) {
+                            for (const num3 of f3) {
+                                // 重複チェック (全て異なる数字であること)
+                                if (new Set([num1, num2, num3]).size !== 3) continue;
+                                const triplet = [num1, num2, num3].sort((a, b) => a - b).join('-');
+                                formationResults.add(triplet);
+                            }
+                        }
+                    }
+                } else if (ticket === '3連単') {
+                    // 3連単（順序あり）
+                    for (const num1 of f1) {
+                        for (const num2 of f2) {
+                            for (const num3 of f3) {
+                                // 重複チェック (全て異なる数字であること)
+                                if (new Set([num1, num2, num3]).size !== 3) continue;
+                                formationResults.add(`${num1}-${num2}-${num3}`);
+                            }
+                        }
+                    }
+                }
+                points = formationResults.size;
+                break;
+
+            case 'マルチ':
+                const multiResults = new Set(); // 重複排除のためSetを使用
+
+                if (ticket === '3連単') {
+                    if (nageashiAxisType === '1頭軸' && firstCount === 1 && thirdCount >= 2) {
+                        const axis = f1[0];
+                        const opponents = f3;
+                        // 相手から2頭の組み合わせを生成
+                        const opponentCombinations = generateCombinationsOfArray(opponents, 2);
+
+                        for (const combo of opponentCombinations) {
+                            const [o1, o2] = combo;
+                            const baseArr = [axis, o1, o2];
+                            // 3つの数字の全ての順列を生成
+                            generatePermutationsOfArray(baseArr).forEach(p => {
+                                // 軸と相手が重複していないことを確認 (例: 1-1-2 は無効)
+                                if (new Set(p).size === 3) {
+                                    multiResults.add(p.join('-'));
+                                }
+                            });
+                        }
+                    } else if (nageashiAxisType === '2頭軸' && firstCount === 1 && secondCount === 1 && thirdCount >= 1) {
+                        const axis1 = f1[0];
+                        const axis2 = f2[0];
+                        if (axis1 === axis2) { // 軸が重複している場合は0点
+                            points = 0;
+                            break;
+                        }
+                        const opponents = f3;
+
+                        for (const opponent of opponents) {
+                            const baseArr = [axis1, axis2, opponent];
+                            // 3つの数字の全ての順列を生成
+                            generatePermutationsOfArray(arr).forEach(p => {
+                                // 軸と相手が重複していないことを確認
+                                if (new Set(p).size === 3) {
+                                    multiResults.add(p.join('-'));
+                                }
+                            });
+                        }
+                    }
+                } else if (ticket === '馬単' || ticket === '2連単') {
+                    // 馬単/2連単のマルチ（2頭立て）
+                    if (nageashiAxisType === '1頭軸' && firstCount === 1 && thirdCount >= 1) {
+                        const axis = f1[0];
+                        const opponents = f3;
+                        for (const opp of opponents) {
+                            if (axis === opp) continue; // 軸と相手が同じ場合は除外
+                            multiResults.add(`${axis}-${opp}`);
+                            multiResults.add(`${opp}-${axis}`);
+                        }
+                    }
+                }
+                points = multiResults.size;
+                break;
+
+            default:
+                points = 0;
+                break;
+        }
+
+        totalPointsDisplay.textContent = points;
+    }
+
+    /**
+     * ヘッダーのテキストを更新する関数
+     * @param {string} betType - 選択された買い方
+     * @param {string} axisType - 選択された軸タイプ (流し/マルチの場合)
+     */
+    function updateGridHeaders(betType, axisType) {
+        const headerPlace1 = document.getElementById('header-place1');
+        const headerPlace2 = document.getElementById('header-place2');
+        const headerPlace3 = document.getElementById('header-place3');
+
+        // Reset all headers to default first
+        headerPlace1.textContent = '1着';
+        headerPlace2.textContent = '2着';
+        headerPlace3.textContent = '3着';
+
+        if (betType === '流し' || betType === 'マルチ') {
+            if (axisType === '1頭軸') {
+                headerPlace1.textContent = '軸';
+                headerPlace2.textContent = ''; // 2着を非表示
+                headerPlace3.textContent = '相手';
+            } else if (axisType === '2頭軸') {
+                headerPlace1.textContent = '軸1';
+                headerPlace2.textContent = '軸2';
+                headerPlace3.textContent = '相手';
+            }
+        } else if (betType === 'BOX') {
+            headerPlace1.textContent = '番号';
+            headerPlace2.textContent = ''; // 2着を非表示
+            headerPlace3.textContent = ''; // 3着を非表示
+        }
+        // For '通常' and 'フォーメーション', default headers are fine.
+    }
+
+    /**
+     * 買い方ボタンのUIと状態を更新する関数
+     * @param {string} betType - 選択された買い方 ('通常', 'BOX', '流し', 'フォーメーション', 'マルチ')
+     * @param {string} axisType - 選択された軸タイプ ('1頭軸', '2頭軸')
+     */
+    function updateUIForBetType(betType, axisType = '') {
+        currentBetType = betType;
+        currentNageashiAxisType = axisType;
+
+        const nageashiSubButtonsContainer = document.getElementById('nageashi-sub-buttons-container');
+        const firstPlaceButtons = document.querySelectorAll('button[data-place="first"]');
+        const secondPlaceButtons = document.querySelectorAll('button[data-place="second"]');
+        const thirdPlaceButtons = document.querySelectorAll('button[data-place="third"]');
+        const currentTicket = document.getElementById('ticket').value; // 現在選択されている券種を取得
+
+        console.log('--- updateUIForBetType Debug Start ---');
+        console.log('betType:', betType, 'axisType:', axisType, 'currentTicket:', currentTicket);
+
+
+        // 流し/マルチの軸ボタンの表示制御
+        if (betType === '流し' || betType === 'マルチ') {
+            nageashiSubButtonsContainer.style.display = 'flex';
+        } else {
+            nageashiSubButtonsContainer.style.display = 'none';
+            // 流し/マルチではない場合、軸タイプもリセット
+            document.getElementById('nageashiAxisType').value = '';
+            document.querySelectorAll('#nageashi-sub-buttons-container button').forEach(btn => btn.classList.remove('selected'));
+            currentNageashiAxisType = '';
+        }
+
+        // 各着順のボタンの有効/無効を制御
+        // まず全てを有効にする
+        firstPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.remove('disabled-column'));
+        secondPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.remove('disabled-column'));
+        thirdPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.remove('disabled-column'));
+
+        // 特定の買い方と軸タイプに基づいて無効化
+        if (betType === '通常' || betType === 'BOX' || betType === 'フォーメーション') {
+            console.log('  Entering Normal/BOX/Formation block.');
+            if (betType === '通常') {
+                console.log('    BetType: 通常');
+                if (currentTicket === '単勝' || currentTicket === '複勝') {
+                    console.log('      Ticket: 単勝/複勝. Disabling 2nd and 3rd place.');
+                    // 単勝、複勝：1着欄のみ選択可能
+                    secondPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.add('disabled-column'));
+                    thirdPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.add('disabled-column'));
+                    secondPlaceSelections = [];
+                    thirdPlaceSelections = [];
+                    document.getElementById('secondPlaceSelections').value = '';
+                    document.getElementById('thirdPlaceSelections').value = '';
+                    updateSelectedNumberButtons('second', secondPlaceSelections);
+                    updateSelectedNumberButtons('third', thirdPlaceSelections);
+                } else if (['馬連', '馬単', '2連複', '2連単', 'ワイド', '枠連', '枠単'].includes(currentTicket)) {
+                    console.log('      Ticket: 2-place tickets. Disabling 3rd place.');
+                    // 馬連、馬単、2連複、2連単、ワイド、枠連、枠単：1着と2着欄のみ選択可能
+                    // secondPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.remove('disabled-column')); // Already enabled by default
+                    thirdPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.add('disabled-column')); // 3着を無効に
+                    thirdPlaceSelections = [];
+                    document.getElementById('thirdPlaceSelections').value = '';
+                    updateSelectedNumberButtons('third', thirdPlaceSelections);
+                } else if (currentTicket === '3連複' || currentTicket === '3連単') {
+                    console.log('      Ticket: 3-place tickets. Keeping all enabled.');
+                    // 3連複、3連単：全ての着順欄選択可能（全て有効のまま）
+                    // All are enabled by default, no need to explicitly remove 'disabled-column' here unless it was previously added.
+                }
+            } else if (betType === 'BOX') { // BOXの場合
+                console.log('    BetType: BOX. Disabling 2nd and 3rd place.');
+                // BOXは1着欄のみ使用なので、2着・3着を無効化
+                secondPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.add('disabled-column'));
+                thirdPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.add('disabled-column'));
+                // 無効化された列の選択をクリア
+                secondPlaceSelections = [];
+                thirdPlaceSelections = [];
+                document.getElementById('secondPlaceSelections').value = '';
+                document.getElementById('thirdPlaceSelections').value = '';
+                updateSelectedNumberButtons('second', secondPlaceSelections);
+                updateSelectedNumberButtons('third', thirdPlaceSelections);
+            } else if (betType === 'フォーメーション') { // フォーメーションの場合
+                console.log('    BetType: フォーメーション.');
+                // フォーメーションは券種によって使用する着順が異なるため、全て有効のまま
+                // ただし、3連系以外は3着を無効化
+                if (currentTicket === '単勝' || currentTicket === '複勝') {
+                    console.log('      Ticket: 単勝/複勝. Disabling 2nd and 3rd place.');
+                    // firstPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.remove('disabled-column')); // Already enabled by default
+                    secondPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.add('disabled-column'));
+                    thirdPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.add('disabled-column'));
+                    secondPlaceSelections = [];
+                    thirdPlaceSelections = [];
+                    document.getElementById('secondPlaceSelections').value = '';
+                    document.getElementById('thirdPlaceSelections').value = '';
+                    updateSelectedNumberButtons('second', secondPlaceSelections);
+                    updateSelectedNumberButtons('third', thirdPlaceSelections);
+                } else if (['馬連', '馬単', '2連複', '2連単', 'ワイド', '枠連', '枠単'].includes(currentTicket)) {
+                    console.log('      Ticket: 2-place tickets. Disabling 3rd place.');
+                    // firstPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.remove('disabled-column')); // Already enabled by default
+                    // secondPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.remove('disabled-column')); // Already enabled by default
+                    thirdPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.add('disabled-column'));
+                    thirdPlaceSelections = [];
+                    document.getElementById('thirdPlaceSelections').value = '';
+                    updateSelectedNumberButtons('third', thirdPlaceSelections);
+                } else if (currentTicket === '3連複' || currentTicket === '3連単') {
+                    console.log('      Ticket: 3-place tickets. Keeping all enabled.');
+                    // All are enabled by default
+                }
+            }
+
+        } else if (betType === '流し' || betType === 'マルチ') {
+            console.log('  Entering Flow/Multi block.');
+            if (axisType === '1頭軸') {
+                console.log('    Axis Type: 1頭軸. Disabling 2nd place.');
+                // 1頭軸の場合、1着欄は軸、2着欄は使用不可、3着欄は相手
+                secondPlaceButtons.forEach(btn => btn.closest('.grid-cell').classList.add('disabled-column'));
+                // 無効化された列の選択をクリア
+                secondPlaceSelections = [];
+                document.getElementById('secondPlaceSelections').value = '';
+                updateSelectedNumberButtons('second', secondPlaceSelections);
+            } else if (axisType === '2頭軸') {
+                console.log('    Axis Type: 2頭軸. Keeping all enabled.');
+                // 2頭軸の場合、1着欄と2着欄は軸、3着欄は相手
+                // 全て有効のまま
+            } else {
+                console.log('    Axis Type: Not selected. Keeping all enabled for now.');
+                // 流し/マルチが選択されたが軸タイプが未選択の場合、2着・3着は一旦有効のまま
+            }
+        }
+        
+        // 実際にボタンをdisabledにする
+        document.querySelectorAll('.grid-cell.disabled-column button').forEach(btn => {
+            btn.disabled = true;
+            btn.classList.add('disabled'); // 新しいスタイルクラスを追加
+        });
+        document.querySelectorAll('.grid-cell:not(.disabled-column) button').forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('disabled'); // スタイルクラスを削除
+        });
+        console.log('--- updateUIForBetType Debug End ---');
+
+        // ヘッダーのテキストを更新
+        updateGridHeaders(betType, axisType);
+        calculatePoints(); // UI更新後に点数再計算
+    }
+
+    /**
+     * 支出または収入の値を100単位で増減させる関数
+     * @param {string} fieldId - 対象の入力フィールドID ('expense' または 'income')
+     * @param {number} delta - 増減させる値 (例: 100, -100)
+     */
+    function changeValue(fieldId, delta) {
+        const field = document.getElementById(fieldId);
+        let currentValue = parseInt(field.value) || 0;
+        currentValue += delta;
+        field.value = currentValue;
+        calculateProfit(); // 収支を更新
+    }
+
+    /**
+     * 収支を計算して更新する関数
+     */
+    function calculateProfit() {
+        const expense = parseInt(document.getElementById('expense').value) || 0;
+        const income = parseInt(document.getElementById('income').value) || 0;
+        const profit = income - expense;
+        document.getElementById('profit').value = profit;
+        var profitElement = document.getElementById('profit');
+        if (profit > 0) {
+            profitElement.style.color = '#4CAF50'; // 緑色
+        } else if (profit < 0) {
+            profitElement.style.color = '#f44336'; // 赤色
+        } else {
+            profitElement.style.color = '#fff'; // 白色
+        }
+    }
+
+    /**
+     * 買い目文字列を生成する関数
+     * @returns {string} 生成された買い目文字列
+     */
+    function generateBettingString() {
+        const ticket = document.getElementById('ticket').value;
+        const betType = currentBetType;
+        const nageashiAxisType = currentNageashiAxisType;
+
+        // 選択された数字を昇順にソート
+        const f1 = [...firstPlaceSelections].sort((a, b) => a - b);
+        const f2 = [...secondPlaceSelections].sort((a, b) => a - b);
+        const f3 = [...thirdPlaceSelections].sort((a, b) => a - b);
+
+        if (!ticket || (!betType && f1.length === 0 && f2.length === 0 && f3.length === 0)) {
+            return '';
+        }
+
+        let resultString = '';
+        let placeSeparator = ''; // "着"間の区切り文字 (例: " → " または " - ")
+        const numberSeparator = '、'; // 同じ"着"内の数字の区切り文字 (例: "2、3、4")
+
+        // 券種が単系か複系かで"着"間の区切り文字を決定
+        const isTanTicket = ['馬単', '2連単', '3連単', '枠単'].includes(ticket);
+        const isFukuTicket = ['馬連', 'ワイド', '2連複', '3連複', '枠連'].includes(ticket);
+
+        if (isTanTicket) {
+            placeSeparator = ' → ';
+        } else if (isFukuTicket) {
+            placeSeparator = ' - ';
+        }
+
+        // 選択配列を文字列にフォーマットするヘルパー関数
+        // 配列が空の場合は空文字列を返す
+        const format = (arr) => arr.length > 0 ? arr.join(numberSeparator) : '';
+
+        switch (betType) {
+            case 'フォーメーション':
+                let partsFormation = [];
+                let displayF1 = [...f1];
+
+                // Filter f2: remove numbers already in f1
+                let displayF2 = f2.filter(num => !f1.includes(num));
+
+                let displayF3 = [];
+                if (ticket === '3連単') {
+                    // For 3連単 memo: f3 excludes f1 and the FIRST number of f2 (if f2 has elements)
+                    if (f2.length > 0) {
+                        displayF3 = f3.filter(num => !f1.includes(num) && num !== f2[0]);
+                    } else {
+                        displayF3 = f3.filter(num => !f1.includes(num));
+                    }
+                } else if (ticket === '3連複') {
+                    // For 3連複, example 2: 1 -> 2 -> 3,4,5,6
+                    const f2FilteredByF1 = f2.filter(num => !f1.includes(num));
+                    let secondPlaceMemoPart = '';
+                    let f3FurtherFiltered = [...f3];
+
+                    if (f2FilteredByF1.length > 0) {
+                        secondPlaceMemoPart = f2FilteredByF1[0].toString();
+                        displayF2 = [f2FilteredByF1[0]]; // Only the first for memo
+                        f3FurtherFiltered = f3FurtherFiltered.filter(num => 
+                            !f1.includes(num) && num !== f2FilteredByF1[0]
+                        );
+                        const remainingF2 = f2FilteredByF1.slice(1);
+                        displayF3 = [...new Set([...f3FurtherFiltered, ...remainingF2])].sort((a,b) => a - b);
+                    } else {
+                        displayF2 = [];
+                        displayF3 = f3.filter(num => !f1.includes(num));
+                    }
+                } else { // For 2-place tickets (馬連, 馬単, 2連複, 2連単, ワイド, 枠連, 枠単)
+                    displayF3 = f3.filter(num => !f1.includes(num) && !f2.includes(num)); // Standard filtering
+                }
+
+                if (displayF1.length > 0) partsFormation.push(format(displayF1));
+                if (displayF2.length > 0) partsFormation.push(format(displayF2));
+                if (displayF3.length > 0) partsFormation.push(format(displayF3));
+
+                // For 2-place tickets, ensure only 2 parts are displayed
+                if (['馬連', 'ワイド', '2連複', '馬単', '2連単', '枠連', '枠単'].includes(ticket) && partsFormation.length > 2) {
+                    partsFormation = partsFormation.slice(0, 2);
+                }
+                // For Single/Place tickets, ensure only 1 part is displayed
+                if (['単勝', '複勝'].includes(ticket) && partsFormation.length > 1) {
+                    partsFormation = partsFormation.slice(0, 1);
+                }
+
+                resultString = `${ticket}フォーメーション：${partsFormation.join(placeSeparator)}`;
+                break;
+
+            case '流し':
+                let partsNageashi = [];
+                let displayAxis = [...f1];
+                let displayOpponents = [];
+
+                if (nageashiAxisType === '1頭軸') {
+                    // Opponents (f3) should exclude the axis (f1)
+                    displayOpponents = f3.filter(num => !f1.includes(num));
+                    if (displayAxis.length > 0) partsNageashi.push(format(displayAxis));
+                    if (displayOpponents.length > 0) partsNageashi.push(format(displayOpponents));
+                } else if (nageashiAxisType === '2頭軸') {
+                    let displayAxis1 = [...f1];
+                    let displayAxis2 = f2.filter(num => !f1.includes(num)); // Axis 2 filters Axis 1
+
+                    if (ticket === '3連単') {
+                        // For 3連単 in 2頭軸流し, opponents (f3) should exclude Axis 1 and Axis 2 (the *first* element of f2)
+                        if (f2.length > 0) {
+                            displayOpponents = f3.filter(num => !f1.includes(num) && num !== f2[0]);
+                        } else {
+                            displayOpponents = f3.filter(num => !f1.includes(num));
+                        }
+                    } else { // For other tickets in 2頭軸流し
+                        displayOpponents = f3.filter(num => !f1.includes(num) && !f2.includes(num)); // Standard filtering
+                    }
+
+                    if (displayAxis1.length > 0) partsNageashi.push(format(displayAxis1));
+                    if (displayAxis2.length > 0) partsNageashi.push(format(displayAxis2));
+                    if (displayOpponents.length > 0) partsNageashi.push(format(displayOpponents));
+                }
+                partsNageashi = partsNageashi.filter(part => part !== '');
+                resultString = `${ticket}流し：${partsNageashi.join(placeSeparator)}`;
+                break;
+
+            case 'BOX':
+                resultString = `${ticket}BOX：${format(f1)}`;
+                break;
+
+            case 'マルチ':
+                // マルチの場合、区切り文字は常に ' ＝ '
+                placeSeparator = ' ＝ ';
+                let partsMulti = [];
+                if (nageashiAxisType === '1頭軸') {
+                    const displayAxis = f1;
+                    const displayOpponents = f3.filter(num => !f1.includes(num)); // 相手は軸の数字を除外
+                    if (displayAxis.length > 0) partsMulti.push(format(displayAxis));
+                    if (displayOpponents.length > 0) partsMulti.push(format(displayOpponents));
+                } else if (nageashiAxisType === '2頭軸') {
+                    const displayAxis1 = f1;
+                    const displayAxis2 = f2.filter(num => !f1.includes(num)); // 軸2は軸1の数字を除外
+                    const displayOpponents = f3.filter(num => !f1.includes(num) && !f2.includes(num)); // 相手は軸1と軸2の数字を除外
+                    if (displayAxis1.length > 0) partsMulti.push(format(displayAxis1));
+                    if (displayAxis2.length > 0) partsMulti.push(format(displayAxis2));
+                    if (displayOpponents.length > 0) partsMulti.push(format(displayOpponents));
+                }
+                partsMulti = partsMulti.filter(part => part !== '');
+                const axisTypeLabel = nageashiAxisType ? `${nageashiAxisType}` : '';
+                resultString = `${ticket}${axisTypeLabel}マルチ：${partsMulti.join(placeSeparator)}`;
+                break;
+
+            case '通常':
+                // 「通常」の場合、選択は主に1着欄で行われ、券種によってフォーマットが変わる
+                // ここでは重複排除はSetで行われるため、追加のフィルタリングは不要
+                if (f1.length === 0) {
+                    resultString = '';
+                } else {
+                    if (ticket === '単勝' || ticket === '複勝') {
+                        resultString = `${ticket}：${format(f1)}`;
+                    } else if (ticket === '馬連' || ticket === 'ワイド' || ticket === '2連複' || ticket === '枠連') {
+                        // 馬連、ワイド、2連複、枠連は1着と2着の選択をまとめて表示
+                        const combinedSelections = [...new Set([...f1, ...f2])].sort((a,b) => a-b);
+                        resultString = `${ticket}：${format(combinedSelections)}`;
+                    } else if (ticket === '馬単' || ticket === '2連単' || ticket === '枠単') {
+                        if (f1.length > 0 && f2.length > 0) {
+                            // 1着と2着がそれぞれ選択されている場合
+                            resultString = `${ticket}：${format(f1)} → ${format(f2)}`;
+                        } else {
+                            resultString = `${ticket}：${format(f1)}`; // 1着のみ選択の場合
+                        }
+                    } else if (ticket === '3連複') {
+                        if (f1.length > 0 && f2.length > 0 && f3.length > 0) {
+                            // 3連複は1着、2着、3着の選択をまとめて表示
+                            const combinedSelections = [...new Set([...f1, ...f2, ...f3])].sort((a,b) => a-b);
+                            resultString = `${ticket}：${format(combinedSelections)}`;
+                        } else {
+                            resultString = `${ticket}：${format(f1)}`; // 1着のみ選択の場合
+                        }
+                    } else if (ticket === '3連単') {
+                        if (f1.length > 0 && f2.length > 0 && f3.length > 0) {
+                            resultString = `${ticket}：${format(f1)} → ${format(f2)} → ${format(f3)}`;
+                        } else {
+                            resultString = `${ticket}：${format(f1)}`; // 1着のみ選択の場合
+                        }
+                    } else {
+                        resultString = '';
+                    }
+                }
+                break;
+        }
+
+        return resultString;
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        setTodayDate();
+        fetchMasterData();
+
+        document.getElementById('category').addEventListener('change', function() {
+            var selectedCategory = this.value;
+            updateDependentSelects(selectedCategory);
+            updateFieldVisibility(selectedCategory);
+            updateFieldRequired(selectedCategory);
+            updateUIForBetType(currentBetType, currentNageashiAxisType); // カテゴリー変更時にもUI更新
+            calculatePoints(); // カテゴリー変更時にも点数計算
+        });
+
+        document.getElementById('place').addEventListener('change', function() {
+            var selectedCategory = document.getElementById('category').value;
+            var selectedPlace = this.value;
+            var filteredBabas = selectedCategory && selectedPlace ? masterData.baba.filter(item => item.category === selectedCategory && item.place === selectedPlace) : [];
+            populateSelect('baba', filteredBabas, '馬場を選択');
+            if (document.getElementById('baba').value !== "" && !filteredBabas.some(item => item.value === document.getElementById('baba').value)) {
+                document.getElementById('baba').value = '';
+            }
+            calculatePoints(); // 場名変更時にも点数計算
+        });
+
+        document.getElementById('machine').addEventListener('change', function() {
+            var selectedMachine = this.value;
+            var filteredTypes = selectedMachine ? masterData.type.filter(item => item.machine === selectedMachine) : [];
+            populateSelect('type', filteredTypes, 'タイプを選択');
+            if (document.getElementById('type').value !== "" && !filteredTypes.some(item => item.value === document.getElementById('type').value)) {
+                document.getElementById('type').value = '';
+            }
+            var filteredMakers = selectedMachine ? masterData.maker.filter(item => item.machine === selectedMachine) : [];
+            populateSelect('maker', filteredMakers, 'メーカーを選択');
+            if (document.getElementById('maker').value !== "" && !filteredMakers.some(item => item.value === document.getElementById('maker').value)) {
+                document.getElementById('maker').value = '';
+            }
+            calculatePoints(); // 機種変更時にも点数計算
+        });
+        
+        document.getElementById('distance').addEventListener('change', function() {
+            var selectedDistanceValue = this.value;
+            var selectedDistanceItem = masterData.distance.find(item => item.value == selectedDistanceValue);
+            document.getElementById('distanceType').value = selectedDistanceItem ? selectedDistanceItem.type : '';
+            calculatePoints(); // 距離変更時にも点数計算
+        });
+
+        // 支出と収入の入力フィールドにイベントリスナーを追加し、手動入力時にも収支を更新
+        document.getElementById('expense').addEventListener('input', calculateProfit);
+        document.getElementById('income').addEventListener('input', calculateProfit);
+        calculateProfit(); // 初期ロード時に収支を計算
+
+        document.getElementById('saveRecordButton').addEventListener('click', saveRecord);
+
+        // 買い方ボタンのイベントリスナー
+        const betTypeButtons = document.querySelectorAll('#betType-buttons-container button');
+        const betTypeHiddenInput = document.getElementById('betType');
+        betTypeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                betTypeButtons.forEach(btn => btn.classList.remove('selected'));
+                this.classList.add('selected');
+                betTypeHiddenInput.value = this.dataset.betType;
+                showMessage(`${this.dataset.betType}が選択されました。`, "info");
+                
+                // --- Default axis type for 流し and マルチ ---
+                if (this.dataset.betType === '流し' || this.dataset.betType === 'マルチ') {
+                    // 直接状態を更新し、UIも更新
+                    currentNageashiAxisType = '1頭軸';
+                    const oneAxisButton = document.querySelector('#nageashi-sub-buttons-container button[data-axis-type="1頭軸"]');
+                    document.querySelectorAll('#nageashi-sub-buttons-container button').forEach(btn => btn.classList.remove('selected')); // 全ての軸ボタンの選択を解除
+                    if (oneAxisButton) {
+                        oneAxisButton.classList.add('selected'); // 1頭軸を選択状態に
+                    }
+                    showMessage(`1頭軸が選択されました。`, "info"); // メッセージ表示
+                } else {
+                    // If not 流し or マルチ, clear axis type selection
+                    nageashiAxisTypeHiddenInput.value = '';
+                    document.querySelectorAll('#nageashi-sub-buttons-container button').forEach(btn => btn.classList.remove('selected'));
+                    currentNageashiAxisType = '';
+                }
+                // --- End Default ---
+
+                updateUIForBetType(this.dataset.betType, currentNageashiAxisType); // 軸タイプも渡す
+            });
+        });
+
+        // 流し/マルチの軸選択ボタンのイベントリスナー
+        const nageashiSubButtons = document.querySelectorAll('#nageashi-sub-buttons-container button');
+        const nageashiAxisTypeHiddenInput = document.getElementById('nageashiAxisType');
+        nageashiSubButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                nageashiSubButtons.forEach(btn => btn.classList.remove('selected'));
+                this.classList.add('selected');
+                nageashiAxisTypeHiddenInput.value = this.dataset.axisType;
+                showMessage(`${this.dataset.axisType}が選択されました。`, "info");
+                updateUIForBetType(currentBetType, this.dataset.axisType); // 軸タイプ変更時にUI更新
+            });
+        });
+
+        // 「出走数」の変更時に番号ボタンを再生成し、点数計算
+        document.getElementById('participantsCount').addEventListener('change', function() {
+            const count = parseInt(this.value);
+            generateNumberButtons(count);
+            clearPlaceSelections(); // 出走数が変わったら選択状態をリセット
+            calculatePoints(); // 点数計算
+        });
+
+        // 「券種」の変更時にも点数計算をトリガー
+        document.getElementById('ticket').addEventListener('change', function() {
+            // 券種変更時にUIを再更新して、着順欄の表示/非表示を調整
+            updateUIForBetType(currentBetType, currentNageashiAxisType);
+            calculatePoints();
+
+            // --- Default Bet Type and Axis Type on Ticket Change ---
+            const betTypeButtons = document.querySelectorAll('#betType-buttons-container button');
+            const formationButton = document.querySelector('#betType-buttons-container button[data-bet-type="フォーメーション"]');
+            const oneAxisButton = document.querySelector('#nageashi-sub-buttons-container button[data-axis-type="1頭軸"]');
+
+            // If no bet type is currently selected, default to 'フォーメーション'
+            // This check ensures it only defaults if the user hasn't already picked one.
+            if (!currentBetType && formationButton) {
+                formationButton.click();
+            } else if ((currentBetType === '流し' || currentBetType === 'マルチ') && !currentNageashiAxisType && oneAxisButton) {
+                // If it's '流し' or 'マルチ' and no axis type is selected, default to '1頭軸'
+                oneAxisButton.click();
+            }
+            // --- End New Default Logic ---
+        });
+
+        // 「クリア」ボタンのイベントリスナー
+        document.getElementById('clearPlaceSelectionsButton').addEventListener('click', clearPlaceSelections);
+
+        // 「決定」ボタンのイベントリスナーを追加
+        document.getElementById('decisionButton').addEventListener('click', function() {
+            const bettingString = generateBettingString();
+            const memoField = document.getElementById('memo');
+            if (bettingString) {
+                // メモ欄に既に内容がある場合は改行を追加して追記、ない場合はそのまま追記
+                if (memoField.value.trim() !== '') {
+                    memoField.value += '\n' + bettingString;
+                } else {
+                    memoField.value = bettingString;
+                }
+            } else {
+                showMessage('買い目情報が不足しているか、選択が不適切です。', 'error');
+            }
+        });
+
+        // 初期ロード時に点数計算を一度実行
+        calculatePoints();
+    });
+
+    // submit event listener for saveRecord function (existing)
+    async function saveRecord() {
+        const formData = {
+            title: document.getElementById('title').value,
+            category: document.getElementById('category').value,
+            date: document.getElementById('date').value,
+            dateYMD: document.getElementById('dateYMD').value,
+            dateYM: document.getElementById('dateYM').value,
+            dateY: document.getElementById('dateY').value,
+            place: document.getElementById('place').value,
+            kaisaibi: document.getElementById('kaisaibi').value,
+            raceNo: document.getElementById('raceNo').value,
+            raceName: document.getElementById('raceName').value,
+            class: document.getElementById('class').value,
+            baba: document.getElementById('baba').value,
+            distance: document.getElementById('distance').value,
+            distanceType: document.getElementById('distanceType').value,
+            condition: document.getElementById('condition').value,
+            ticket: document.getElementById('ticket').value,
+            machine: document.getElementById('machine').value,
+            type: document.getElementById('type').value,
+            maker: document.getElementById('maker').value,
+            expense: document.getElementById('expense').value,
+            income: document.getElementById('income').value,
+            memo: document.getElementById('memo').value,
+            // '収支'はスプレッドシート側で計算されるため、ここでは含めない
+            // '1着', '2着', '3着'の選択はApps Script側で処理されるため、ここでは送信しない
         };
 
-        // 全機種リスト (deviceTypeDetailsのキーから生成)
-        const allDeviceTypes = Object.keys(deviceTypeDetails);
+        try {
+            // Required field validation (custom logic based on rules)
+            const requiredRules = masterData.requiredRules[formData.category];
+            let allRequiredFieldsFilled = true;
+            for (const key in fieldMap) {
+                const fieldNameInSheet = fieldMap[key];
+                // スプレッドシートに転記しない項目はバリデーションから除外
+                const excludedFields = ['participantsCount', 'betType', 'firstPlaceSelections', 'secondPlaceSelections', 'thirdPlaceSelections', 'profit', 'points'];
+                if (excludedFields.includes(key)) continue;
 
-        // タイプオプション
-        const typeOptions = ["A", "RT", "ART", "AT", "A+RT"];
-        // メーカーオプション
-        const manufacturerOptions = ["北電子", "SANKYO", "Sammy", "大都技研", "山佐"];
+                if (requiredRules && requiredRules[key] === true) {
+                    const element = document.getElementById(key);
+                    if (element && element.offsetParent !== null) { // Check if element is visible
+                        if (!element.value || element.value === "" || element.value === "選択してください" || element.value === "場名を選択" || element.value === "開催日を選択" || element.value === "レース番号を選択" || element.value === "クラスを選択" || element.value === "条件を選択" || element.value === "馬場を選択" || element.value === "距離を選択" || element.value === "機種を選択" || element.value === "タイプを選択" || element.value === "メーカーを選択" || element.value === "券種を選択" || element.value === "カテゴリーを選択" || element.value === "出走数を選択") {
+                            // 特定の選択項目に対するバリデーション
+                            if (!['betType', 'firstPlaceSelections', 'secondPlaceSelections', 'thirdPlaceSelections'].includes(key)) {
+                                showMessage(`${fieldNameInSheet} は必須項目です。`, 'error');
+                                allRequiredFieldsFilled = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
 
-        // 各フォームグループのIDをマップ
-        let formGroups = {}; 
+            // 特殊なバリデーション：買い方と選択された番号の整合性
+            // 点数が0点でも転記できるように、このチェックは削除
+            if (document.getElementById('betType').value && !['通常', 'BOX', '流し', 'フォーメーション', 'マルチ'].includes(document.getElementById('betType').value)) {
+                 showMessage('買い方が選択されていません。', 'error');
+                 allRequiredFieldsFilled = false;
+            }
 
-        // カテゴリーごとのフィールド表示/非表示、および必須設定 (★マークを反映)
-        const visibilityMatrix = {
-            "競馬": {
-                "title": { visible: true, required: false },
-                "category": { visible: true, required: true }, // カテゴリーは常に必須なので、ここに設定は残すが、別途強制する
-                "date": { visible: true, required: true },
-                "date-db": { visible: true, required: false },
-                "year-db": { visible: true, required: false },
-                "month-date-db": { visible: true, required: false },
-                "location-store": { visible: true, required: true },
-                "event-date": { visible: false, required: false },
-                "race-number": { visible: true, required: true },
-                "race-name": { visible: true, required: false },
-                "class": { visible: true, required: true },
-                "distance": { visible: true, required: true },
-                "distance-genre": { visible: true, required: false },
-                "condition": { visible: true, required: false },
-                "horse-name": { visible: true, required: true },
-                "betting-type": { visible: true, required: true },
-                "expense": { visible: true, required: true },
-                "income": { visible: true, required: true },
-                "balance": { visible: true, required: false },
-                "device-type": { visible: false, required: false },
-                "type": { visible: false, required: false },
-                "manufacturer": { visible: false, required: fa
+
+            if (!allRequiredFieldsFilled) {
+                return; // バリデーション失敗
+            }
+
+            const response = await google.script.run
+                .withSuccessHandler(function(res) {
+                    showMessage(res.message, "success");
+                    clearForm();
+                    fetchMasterData(); // 連続入力のためにマスターデータを再読み込み
+                })
+                .withFailureHandler(function(error) {
+                    showMessage("Error: " + error.message, "error");
+                    console.error("Error saving record:", error);
+                })
+                .saveRecord(formData);
+
+        } catch (error) {
+            showMessage("Error: " + error.message, "error");
+            console.error("Error saving record:", error);
+        }
+    }
+
+    // Clear form function (modified)
+    function clearForm() {
+        document.getElementById('title').value = '';
+        document.getElementById('category').value = '';
+        document.getElementById('date').value = '';
+        document.getElementById('dateYMD').value = '';
+        document.getElementById('dateYM').value = '';
+        document.getElementById('dateY').value = '';
+        document.getElementById('place').value = '';
+        populateSelect('kaisaibi', [], '開催日を選択');
+        populateSelect('raceNo', [], 'レース番号を選択');
+        document.getElementById('raceName').value = '';
+        populateSelect('class', [], 'クラスを選択');
+        populateSelect('baba', [], '馬場を選択');
+        populateSelect('distance', masterData.distance, '距離を選択'); // 距離の選択肢を再設定
+        document.getElementById('distanceType').value = '';
+        populateSelect('condition', [], '条件を選択');
+        populateSelect('ticket', [], '券種を選択');
+        populateSelect('machine', [], '機種を選択');
+        populateSelect('type', [], 'タイプを選択');
+        populateSelect('maker', [], 'メーカーを選択');
+        populateSelect('participantsCount', masterData.participantsCount, '出走数を選択'); // マスターデータから再設定
+        document.getElementById('participantsCount').dispatchEvent(new Event('change')); // これで番号ボタンもクリアされる
+
+        // ベットタイプ関連のクリア
+        document.getElementById('betType').value = ''; // 隠しフィールドをクリア
+        document.querySelectorAll('#betType-buttons-container button').forEach(btn => {
+            btn.classList.remove('selected'); // 選択状態を解除
+        });
+        document.getElementById('nageashiAxisType').value = ''; // 隠しフィールドをクリア
+        document.querySelectorAll('#nageashi-sub-buttons-container button').forEach(btn => {
+            btn.classList.remove('selected'); // 選択状態を解除
+        });
+        document.getElementById('nageashi-sub-buttons-container').style.display = 'none'; // 非表示にする
+
+        clearPlaceSelections(); // 新しい関数を呼び出し
+
+        updateFieldVisibility('');
+        updateFieldRequired('');
+
+        setTodayDate();
+        document.getElementById('raceNo').value = '';
+        document.getElementById('raceName').value = '';
+        document.getElementById('distance').value = '';
+        document.getElementById('distanceType').value = '';
+        document.getElementById('expense').value = '0';
+        document.getElementById('income').value = '0';
+        document.getElementById('profit').value = '0';
+        document.getElementById('memo').value = '';
+        document.getElementById('kaisaibi').value = '';
+        document.getElementById('profit').style.color = '#fff';
+        showMessage("", "");
+        calculateProfit(); // 収支をリセット
+        calculatePoints(); // 点数もリセット
+
+        // --- New: Set default bet type to 'フォーメーション' after clearing ---
+        // clearFormの最後に、券種が選択されていない状態からデフォルトを適用するために、
+        // ticketのchangeイベントをトリガーする。
+        // これにより、ticketのchangeイベントリスナー内のデフォルト設定ロジックが実行される。
+        document.getElementById('ticket').dispatchEvent(new Event('change'));
+        // --- End New ---
+    }
+
+    // fetchMasterData and setTodayDate (existing)
+    function fetchMasterData() {
+        showMessage("マスターデータ読み込み中", "info"); // 読み込み開始メッセージ
+        google.script.run
+            .withSuccessHandler(function(data) {
+                masterData = data;
+                console.log('Master Data loaded:', masterData);
+                console.log('Visibility Rules:', masterData.visibilityRules);
+                populateSelect('category', masterData.category, 'カテゴリーを選択');
+                populateSelect('kaisaibi', masterData.kaisaibi, '開催日を選択');
+                populateSelect('raceNo', masterData.raceNo, 'レース番号を選択');
+                populateSelect('distance', masterData.distance, '距離を選択');
+                populateSelect('participantsCount', masterData.participantsCount, '出走数を選択');
+
+                // Always trigger the change event on the category select after initial population.
+                // This ensures that updateDependentSelects, updateFieldVisibility, and updateFieldRequired
+                // are consistently applied based on the current (potentially empty) category selection.
+                const categorySelect = document.getElementById('category');
+                categorySelect.dispatchEvent(new Event('change'));
+
+                // If there's only one category and it's not already selected (e.g., after clearForm), auto-select it.
+                // This block should be *after* the general change event to avoid conflicting state.
+                if (masterData.category.length === 1 && categorySelect.value === "") {
+                    categorySelect.value = masterData.category[0].value;
+                    categorySelect.dispatchEvent(new Event('change')); // Trigger again for auto-selected single category
+                }
+
+                // --- New: Set default bet type to 'フォーメーション' on initial load ---
+                // 初期ロード時にも券種が未選択であればデフォルトを適用するために、
+                // ticketのchangeイベントをトリガーする。
+                // これにより、ticketのchangeイベントリスナー内のデフォルト設定ロジックが実行される。
+                document.getElementById('ticket').dispatchEvent(new Event('change'));
+                // --- End New ---
+
+                showMessage("マスターデータ読み込み完了", "success"); // 読み込み完了メッセージ
+            })
+            .withFailureHandler(function(error) {
+                showMessage("マスターデータの取得に失敗しました: " + error.message, "error");
+                console.error("Error fetching master data:", error);
+            })
+            .getMasterData();
+    }
+
+    function setTodayDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        document.getElementById('date').value = `${year}-${month}-${day}`;
+        document.getElementById('dateYMD').value = `${year}年${parseInt(month)}月${parseInt(day)}日`;
+        document.getElementById('dateYM').value = `${year}年${parseInt(month)}月`;
+        document.getElementById('dateY').value = `${year}年`;
+    }
+  </script>
+</body>
+</html>
