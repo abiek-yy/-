@@ -1,0 +1,281 @@
+const COLUMN_HEADERS = [
+  'タイトル', 'カテゴリー', 'Date', '年月日DB', '年月DB', '年DB', '場名', '開催日',
+  'レース番号', 'レース名', 'クラス', '馬場', '距離', '距離ジャンル', '条件',
+  '券種', '機種', 'タイプ', 'メーカー', '支出', '収入', '収支', 'メモ' // '1着', '2着', '3着'を削除
+];
+
+// スプレッドシートのヘッダー名とHTML側のfieldMapキーのマッピング
+// Code.gs内で日本語ヘッダーを英語キーに変換するために使用
+const HEADER_TO_FIELD_MAP = {
+  'タイトル': 'title',
+  'カテゴリー': 'category',
+  'Date': 'date',
+  '年月日DB': 'dateYMD',
+  '年月DB': 'dateYM',
+  '年DB': 'dateY',
+  '場名': 'place',
+  '開催日': 'kaisaibi',
+  'レース番号': 'raceNo',
+  'レース名': 'raceName',
+  'クラス': 'class',
+  '馬場': 'baba',
+  '距離': 'distance',
+  '距離ジャンル': 'distanceType', // Corrected: Mapped to 'distanceType' for HTML fieldMap consistency
+  '条件': 'condition',
+  '券種': 'ticket',
+  '機種': 'machine',
+  'タイプ': 'type',
+  'メーカー': 'maker',
+  '出走数': 'participantsCount',
+  '買い方': 'betType',
+  '1着': 'firstPlaceSelections',
+  '2着': 'secondPlaceSelections',
+  '3着': 'thirdPlaceSelections',
+  '支出': 'expense',
+  '収入': 'income',
+  '収支': 'profit', // '収支'はHTML側で計算された値をそのまま使用
+  'メモ': 'memo'
+};
+
+/**
+ * Webアプリとしてページをロードする関数
+ * この関数は必須で、名前は 'doGet' である必要があります。
+ */
+function doGet(e) {
+  const page = e.parameter.page || 'index';
+  return HtmlService.createHtmlOutputFromFile(page)
+    .setTitle("収支入力");
+}
+
+function saveRecord(data) {
+  const sheet = SpreadsheetApp.openById('1jVuW040iTnHRnOb_KOrjZrTj2f1E8SGW5mRGSebUyak')
+    .getSheetByName('収支'); // '収支'シート
+
+  // スプレッドシートのヘッダーとデータのマッピングを定義
+  const headerMap = {
+    'タイトル': data.title,
+    'カテゴリー': data.category,
+    'Date': data.date,
+    '年月日DB': data.dateYMD,
+    '年月DB': data.dateYM,
+    '年DB': data.dateY,
+    '場名': data.place,
+    '開催日': data.kaisaibi,
+    'レース番号': data.raceNo,
+    'レース名': data.raceName,
+    'クラス': data.class,
+    '馬場': data.baba,
+    '距離': data.distance,
+    '距離ジャンル': data.distanceType,
+    '条件': data.condition,
+    '券種': data.ticket,
+    '機種': data.machine,
+    'タイプ': data.type,
+    'メーカー': data.maker,
+    '支出': data.expense,
+    '収入': data.income,
+    'メモ': data.memo
+  };
+
+  // COLUMN_HEADERSの順序に従ってrowDataを作成
+  const rowData = COLUMN_HEADERS.map(header => {
+    // '収支'列のデータはスプレッドシートの関数で出力されるため、ここでは含めない
+    if (header === '収支') {
+        return ''; // スプレッドシートの関数に任せるため空にする
+    }
+    // 空文字列のヘッダー（V列）には空の値を設定
+    if (header === '') {
+        return '';
+    }
+    return headerMap[header];
+  });
+  
+  sheet.appendRow(rowData);
+  return { message: "記録が正常に保存されました！" };
+}
+
+
+/**
+ * スプレッドシートからマスターデータを取得する共通関数
+ * @returns {object} 各シートのデータを含むオブジェクト
+ */
+function getMasterData() {
+  try {
+    const ss = SpreadsheetApp.openById('1jVuW040iTnHRnOb_KOrjZrTj2f1E8SGW5mRGSebUyak');
+    const masterData = {
+      // 全てのプロパティを明示的に初期化
+      category: [],
+      place: [],
+      distance: [],
+      raceNo: [],
+      kaisaibi: [],
+      class: [],
+      condition: [],
+      baba: [],
+      ticket: [],
+      machine: [],
+      type: [],
+      maker: [],
+      participantsCount: [],
+      categoryParticipantsCount: [],
+      visibilityRules: {}, // ルールはオブジェクト
+      requiredRules: {}    // ルールはオブジェクト
+    };
+
+    // 各シート名と、それに対応するmasterDataオブジェクトのプロパティ名を定義
+    const sheetConfig = {
+      'カテゴリー': 'category',
+      '場名': 'place',
+      '距離': 'distance',
+      'レース番号': 'raceNo',
+      '開催日': 'kaisaibi',
+      'クラス': 'class',
+      '条件': 'condition',
+      '馬場': 'baba',
+      '券種': 'ticket',
+      '機種': 'machine',
+      'タイプ': 'type',
+      'メーカー': 'maker',
+      '出走数': 'participantsCount',
+      'カテゴリー別出走数': 'categoryParticipantsCount',
+      '表示非表示': 'visibilityRules',
+      '入力必須項目': 'requiredRules'
+    };
+
+    for (const sheetName in sheetConfig) {
+      const propName = sheetConfig[sheetName];
+      const sheet = ss.getSheetByName(sheetName);
+      
+      if (!sheet) {
+        Logger.log(`ERROR: getMasterData - シートが見つかりません: ${sheetName}。`);
+        continue;
+      }
+      
+      const values = sheet.getDataRange().getValues();
+      if (values.length === 0) {
+        Logger.log(`WARNING: getMasterData - シート '${sheetName}' にデータが見つかりません。`);
+        continue;
+      }
+
+      const headers = values[0];
+      const dataRows = values.slice(1);
+
+      if (sheetName === '表示非表示' || sheetName === '入力必須項目') {
+        // '表示非表示'と'入力必須項目'シートはgetRules関数で処理
+        masterData[propName] = getRules(sheetName); // getRulesが英語キーのルールを返す
+      } else if (['場名', '機種', 'タイプ', 'メーカー', 'クラス', '条件', '馬場'].includes(sheetName)) {
+        masterData[propName] = dataRows.map(row => {
+          const obj = {};
+          // ヘッダーのインデックスを動的に取得
+          const categoryIndex = headers.indexOf('カテゴリー');
+          const nameIndex = headers.indexOf('名称');
+          const classIndex = headers.indexOf('クラス');
+          const conditionIndex = headers.indexOf('条件');
+          const babaIndex = headers.indexOf('馬場');
+          const kisyuIndex = headers.indexOf('機種'); // 機種は「機種」と「タイプ」「メーカー」シート両方にある
+          const typeIndex = headers.indexOf('タイプ');
+          const makerIndex = headers.indexOf('メーカー');
+          const bamyoIndex = headers.indexOf('場名'); // 馬場シートの場名
+
+          if (categoryIndex !== -1) {
+            obj.category = row[categoryIndex];
+          }
+          if (nameIndex !== -1) {
+            obj.name = row[nameIndex];
+          }
+          if (classIndex !== -1) {
+            obj.value = row[classIndex];
+          }
+          if (conditionIndex !== -1) {
+            obj.value = row[conditionIndex];
+          }
+          if (babaIndex !== -1) {
+            obj.value = row[babaIndex];
+          }
+          if (kisyuIndex !== -1) {
+            // 機種シートの場合はname、タイプ/メーカーシートの場合はvalueとmachine
+            if (sheetName === '機種') {
+              obj.name = row[kisyuIndex];
+            } else {
+              obj.machine = row[kisyuIndex];
+            }
+          }
+          if (typeIndex !== -1) {
+            obj.value = row[typeIndex];
+          }
+          if (makerIndex !== -1) {
+            obj.value = row[makerIndex];
+          }
+          if (bamyoIndex !== -1 && sheetName === '馬場') { // 馬場シートの場名
+            obj.place = row[bamyoIndex];
+          }
+          return obj;
+        }).filter(obj => Object.keys(obj).length > 0); // 空のオブジェクトを除外
+      } else if (sheetName === '距離') {
+        masterData[propName] = dataRows.map(row => ({
+          value: row[headers.indexOf('距離')],
+          type: row[headers.indexOf('距離ジャンル')]
+        }));
+      } else if (sheetName === '券種') { // '券種'シートの専用処理
+          masterData[propName] = dataRows.map(row => {
+              const obj = {};
+              // スプレッドシートのデータ構造に合わせて、A列をcategory、B列をnameとして取得
+              obj.category = row[0]; // A列
+              obj.name = row[1];     // B列
+              
+              return obj;
+          }).filter(obj => obj.category && obj.name); // categoryとnameが両方存在する行のみをフィルタ
+      }
+      else { // 'カテゴリー', 'レース番号', '開催日', '出走数', 'カテゴリー別出走数'
+        masterData[propName] = dataRows.map(row => ({
+          value: row[0]
+        }));
+      }
+    }
+
+    // Logger.log("getMasterData 成功: " + JSON.stringify(Object.keys(masterData)));
+    return masterData;
+  } catch (e) {
+    Logger.log("getMasterData 失敗: " + e.message);
+    throw new Error("マスターデータの取得中にエラーが発生しました: " + e.message);
+  }
+}
+
+/**
+ * 表示/非表示、入力必須項目のルールを取得する共通関数
+ * @param {string} sheetName ルールが定義されているシートの名前
+ * @returns {object} カテゴリーごとのルールオブジェクト (キーはHTML側のfieldMapキーに変換済み)
+ */
+function getRules(sheetName) {
+  try {
+    const ss = SpreadsheetApp.openById('1jVuW040iTnHRnOb_KOrjZrTj2f1E8SGW5mRGSebUyak');
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) {
+      Logger.log(`ERROR: getRules - ルールシートが見つかりません: ${sheetName}。`);
+      throw new Error(`ルールシートが見つかりません: ${sheetName}。スプレッドシートのタブ名を確認してください。`);
+    }
+    const values = sheet.getDataRange().getValues();
+    if (values.length === 0 || values[0].length === 0) {
+      Logger.log(`WARNING: getRules - シート '${sheetName}' にヘッダー行が見つかりません。空のルールを返します。`);
+      return {};
+    }
+    const headers = values[0]; // ヘッダー行全体を取得
+    const rules = {};
+    values.slice(1).forEach(row => {
+      const category = row[0]; // 1列目がカテゴリー
+      if (category) {
+        rules[category] = {};
+        for (let i = 1; i < headers.length; i++) { // 2列目以降が項目名
+          const headerName = headers[i];
+          // グローバル定数HEADER_TO_FIELD_MAPを使用して日本語ヘッダーを英語キーに変換
+          const fieldKey = HEADER_TO_FIELD_MAP[headerName] || headerName; 
+          rules[category][fieldKey] = !!row[i]; // !! を使用して明示的にブーリアンに変換
+        }
+      }
+    });
+    return rules;
+  } catch (e) {
+    Logger.log("getRules 失敗: " + e.message);
+    throw new Error("ルールデータの取得中にエラーが発生しました: " + e.message);
+  }
+}
